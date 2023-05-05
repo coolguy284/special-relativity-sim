@@ -35,7 +35,7 @@ async function renderLoop() {
   while (true) {
     if (TIME_ADVANCING) {
       let currentTime = Date.now();
-      TIME += (currentTime - pastTime) / 1000;
+      TIME += (currentTime - pastTime) / 1000 * TIME_RATE;
       pastTime = currentTime;
     } else {
       pastTime = Date.now();

@@ -56,7 +56,7 @@ function populateShaderProgramInfo() {
       pos: gl.getUniformLocation(shaderProgram, 'pos'),
       scale: gl.getUniformLocation(shaderProgram, 'scale'),
       
-      time: gl.getUniformLocation(shaderProgram, 'time'),
+      globalTime: gl.getUniformLocation(shaderProgram, 'globalTime'),
     }
   };
 }
@@ -136,7 +136,7 @@ function drawGLScene(buffers) {
   gl.uniform2fv(shaderProgramInfo.uniformLocations.pos, [X, Y]);
   gl.uniform1f(shaderProgramInfo.uniformLocations.scale, SCALE);
   
-  gl.uniform1f(shaderProgramInfo.uniformLocations.time, TIME);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.globalTime, TIME);
   
   let offset = 0;
   let vertexCount = 4;

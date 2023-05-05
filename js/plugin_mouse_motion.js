@@ -1,17 +1,22 @@
+with (new Proxy(window, {get: (target,prop)=>{if(typeof prop=='string'&&!['window','performance','Math','Promise','Infinity'].includes(prop))console.log(target,prop);return Reflect.get(target,prop)}})) {
 let ZOOM_SCALE_FACTOR = (1 / 1.5) ** (1 / 120);
 let INERTIA_SLOWDOWN = 10;
 let INERTIA_FASTSLOWDOWN_TIME_THRESHOLD = 0.8;
+let INERTIA_FASTSLOWDOWN_VEL_THRESHOLD = 3;
+let INERTIA_SLOWDOWN_FACTOR = 0.1;
 let INERTIA_MOVE_THRESHOLD = 1e-6;
 let INERTIA_ZOOM_FACTOR = 20;
 let INERTIA_ZOOM_THRESHOLD = 1e-2;
 let PREV_MOUSE_BUFFER_LENGTH = 3;
 let PREV_MOUSE_BUFFER_TIMESPAN = 0.1 * 1000;
 
-let velX, velY;
+let velX, velY, velMag;
 let movementLoopRunning = false;
 let targetScale = SCALE, targetScalePMouseX, targetScalePMouseY;
 let mouseDown = false;
+let pMouseX, pMouseY;
 let previousMouseDrags = [];
+let timeUnclicked;
 
 async function movementLoop() {
   if (movementLoopRunning) return;
@@ -91,7 +96,7 @@ async function movementLoop() {
       pTimestamp = timestamp;
     }
     
-    timestamp = await new Promise(r => requestAnimationFrame(r));
+    timestamp = await new Promise(r => window.requestAnimationFrame(r));
   }
 }
 
@@ -170,3 +175,4 @@ window.addEventListener('wheel', e => {
   
   movementLoop();
 });
+}
