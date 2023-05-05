@@ -12,6 +12,7 @@ out vec4 outColor;
 
 bool LIGHT_TRAVEL_TIME_DELAY = true;
 bool BLACK_BEFORE_UNVIERSE_START = true;
+bool BACKGROUND_PULSE = true;
 
 const float SPEED_OF_LIGHT = 1.0;
 
@@ -21,6 +22,9 @@ const float GRID_SPACING = 1.0;
 const float GRID_SPACING_1_2 = GRID_SPACING / 2.0;
 const float BORDER_THICKNESS = 0.05;
 const float BORDER_THICKNESS_1_2 = BORDER_THICKNESS / 2.0;
+
+const float BACKGROUND_PULSE_INTENSITY = 0.1;
+const float BACKGROUND_PULSE_INTENSITY_1_2 = BACKGROUND_PULSE_INTENSITY / 2.0;
 
 const bool EMITTER_EXISTS = true;
 const bool EMITTER_ENABLED = true;
@@ -34,12 +38,30 @@ const float PARTICLE_SPEED = 0.8; // to reverse speed period must also be revers
 const float PARTICLE_PERIOD = 1.0;
 const float PARTICLE_SPACING = PARTICLE_SPEED * PARTICLE_PERIOD;
 
+const bool WHEEL_EXISTS = true;
+const bool WHEEL_ENABLED = true;
+const float WHEEL_X = -3.0;
+const float WHEEL_Y = 1.0;
+const float WHEEL_RADIUS = 0.7;
+const float WHEEL_RADIUS_SQ = WHEEL_RADIUS * WHEEL_RADIUS;
+const float WHEEL_THICKNESS = 0.1;
+const float WHEEL_INNER_RADIUS = WHEEL_RADIUS - WHEEL_THICKNESS;
+const float WHEEL_INNER_RADIUS_SQ = WHEEL_INNER_RADIUS * WHEEL_INNER_RADIUS;
+const float WHEEL_SPOKES = 15.0;
+const float WHEEL_THICKNESS_RADIAL = WHEEL_THICKNESS / WHEEL_RADIUS / 3.14159265358979 / 2.0 / 4.0 * WHEEL_SPOKES; // unknown reason that / 4.0 is needed
+const float WHEEL_CENTER_RADIUS = 0.2;
+const float WHEEL_CENTER_RADIUS_SQ = WHEEL_CENTER_RADIUS * WHEEL_CENTER_RADIUS;
+const float WHEEL_START_TIME = 0.0;
+const float WHEEL_SPEED = WHEEL_INNER_RADIUS / 3.14159265358979 / 2.0 * 2.0 * SPEED_OF_LIGHT * 0.5; // in revolutions per second (WHEEL_INNER_RADIUS / 3.14159265358979 / 2.0 * 2.0 * SPEED_OF_LIGHT for lightspeed); unknown reason why * 2.0 is needed
+
 vec3 getColorAtPlace(float x, float y, float time) {
   // all black before universe start :)
   
   if (BLACK_BEFORE_UNVIERSE_START && time < UNIVERSE_START) {
     return vec3(0.0, 0.0, 0.0);
   }
+  
+  // emitter
   
   if (EMITTER_EXISTS) {
     // draw emitter arrow shaft
@@ -86,6 +108,42 @@ vec3 getColorAtPlace(float x, float y, float time) {
     }
   }
   
+  // wheel
+  
+  if (WHEEL_EXISTS) {
+    // draw wheel rim
+    
+    float wheelDeltX = x - WHEEL_X;
+    float wheelDeltY = y - WHEEL_Y;
+    float wheelDistSq = wheelDeltX * wheelDeltX + wheelDeltY * wheelDeltY;
+    
+    if (wheelDistSq > WHEEL_INNER_RADIUS && wheelDistSq < WHEEL_RADIUS) {
+      return vec3(1.0, 1.0, 1.0);
+    }
+    
+    // draw wheel center
+    
+    if (wheelDistSq < WHEEL_CENTER_RADIUS_SQ) {
+      return vec3(1.0, 1.0, 1.0);
+    }
+    
+    // draw wheel spokes
+    
+    float wheelAngle = atan(wheelDeltY, wheelDeltX) / 3.14159265358979 / 2.0;
+    
+    if (WHEEL_ENABLED && time > WHEEL_START_TIME) {
+      wheelAngle += WHEEL_SPEED * (time - WHEEL_START_TIME);
+    }
+    
+    float wheelThicknessAmplifDivis = sqrt(wheelDistSq / WHEEL_RADIUS);
+    
+    float wheelAngleMod = mod(wheelAngle * WHEEL_SPOKES + WHEEL_THICKNESS_RADIAL / wheelThicknessAmplifDivis, 1.0) - WHEEL_THICKNESS_RADIAL / wheelThicknessAmplifDivis;
+    
+    if (wheelDistSq < WHEEL_RADIUS && wheelAngleMod < WHEEL_THICKNESS_RADIAL / wheelThicknessAmplifDivis) {
+      return vec3(1.0, 1.0, 1.0);
+    }
+  }
+  
   // draw border
   
   bool xBorder = mod(x + BORDER_THICKNESS_1_2, GRID_SPACING) < BORDER_THICKNESS;
@@ -98,11 +156,13 @@ vec3 getColorAtPlace(float x, float y, float time) {
   } else if (xBorder || yBorder) {
     return vec3(0.5, 0.5, 0.5);
   } else {
-    return vec3(
-      -cos(time * 5.0) * 0.1 + 0.1,
-      -cos(time * 5.0) * 0.1 + 0.1,
-      -cos(time * 5.0) * 0.1 + 0.1
-    );
+    if (BACKGROUND_PULSE) {
+      return vec3(
+        -cos(time * 5.0) * BACKGROUND_PULSE_INTENSITY_1_2 + BACKGROUND_PULSE_INTENSITY_1_2,
+        -cos(time * 5.0) * BACKGROUND_PULSE_INTENSITY_1_2 + BACKGROUND_PULSE_INTENSITY_1_2,
+        -cos(time * 5.0) * BACKGROUND_PULSE_INTENSITY_1_2 + BACKGROUND_PULSE_INTENSITY_1_2
+      );
+    }
   }
 }
 
