@@ -42,6 +42,8 @@ const bool WHEEL_EXISTS = true;
 const bool WHEEL_ENABLED = true;
 const float WHEEL_X = -3.0;
 const float WHEEL_Y = 1.0;
+const float WHEEL_VEL_X = 0.0;
+const float WHEEL_VEL_Y = 0.0;
 const float WHEEL_RADIUS = 0.7;
 const float WHEEL_RADIUS_SQ = WHEEL_RADIUS * WHEEL_RADIUS;
 const float WHEEL_THICKNESS = 0.1;
@@ -113,8 +115,8 @@ vec3 getColorAtPlace(float x, float y, float time) {
   if (WHEEL_EXISTS) {
     // draw wheel rim
     
-    float wheelDeltX = x - WHEEL_X;
-    float wheelDeltY = y - WHEEL_Y;
+    float wheelDeltX = x - WHEEL_X - WHEEL_VEL_X * max(time - WHEEL_START_TIME, 0.0);
+    float wheelDeltY = y - WHEEL_Y - WHEEL_VEL_Y * max(time - WHEEL_START_TIME, 0.0);
     float wheelDistSq = wheelDeltX * wheelDeltX + wheelDeltY * wheelDeltY;
     
     if (wheelDistSq > WHEEL_INNER_RADIUS && wheelDistSq < WHEEL_RADIUS) {
