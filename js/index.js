@@ -1,21 +1,18 @@
-let X = 0,
-  Y = 0,
-  SCALE = 10,
-  TIME = 0;
-let SPEED_OF_LIGHT = 1;
-
-let SUBPIXEL_SCALE = 2;
-
 let gl; // variable for canvas webgl context
 let shaderProgram;
 let shaderProgramInfo;
 let glBuffers;
 let pastTime;
+let realCanvasWidth, realCanvasHeight;
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
-  canvas.width = Math.floor(parseInt(canvasStyle.width.replace('px', '')) * SUBPIXEL_SCALE);
-  canvas.height = Math.floor(parseInt(canvasStyle.height.replace('px', '')) * SUBPIXEL_SCALE);
+  
+  realCanvasWidth = parseInt(canvasStyle.width.replace('px', ''));
+  realCanvasHeight = parseInt(canvasStyle.height.replace('px', ''));
+  
+  canvas.width = Math.floor(realCanvasWidth * SUBPIXEL_SCALE);
+  canvas.height = Math.floor(realCanvasHeight * SUBPIXEL_SCALE);
 }
 
 async function glInit() {
@@ -36,9 +33,13 @@ function render() {
 
 async function renderLoop() {
   while (true) {
-    let currentTime = Date.now();
-    TIME += (currentTime - pastTime) / 1000;
-    pastTime = currentTime;
+    if (TIME_ADVANCING) {
+      let currentTime = Date.now();
+      TIME += (currentTime - pastTime) / 1000;
+      pastTime = currentTime;
+    } else {
+      pastTime = Date.now();
+    }
     
     render();
     
@@ -62,4 +63,23 @@ window.addEventListener('resize', async () => {
   handleResize();
   await glInit();
   render();
+});
+
+window.addEventListener('keydown', e => {
+  switch (e.code) {
+    case 'Space':
+      TIME_ADVANCING = !TIME_ADVANCING;
+      break;
+    
+    case 'KeyR':
+      X = 0;
+      Y = 0;
+      SCALE = 10;
+      targetScale = 10;
+      break;
+    
+    case 'KeyT':
+      TIME = 0;
+      break;
+  }
 });
