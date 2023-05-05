@@ -53,7 +53,7 @@ function populateShaderProgramInfo() {
       
       iResolution: gl.getUniformLocation(shaderProgram, 'iResolution'),
       
-      coords: gl.getUniformLocation(shaderProgram, 'coords'),
+      pos: gl.getUniformLocation(shaderProgram, 'pos'),
       scale: gl.getUniformLocation(shaderProgram, 'scale'),
       
       time: gl.getUniformLocation(shaderProgram, 'time'),
@@ -104,6 +104,8 @@ function drawGLScene(buffers) {
   
   gl.clear(gl.COLOR_BUFFER_BUT | gl.DEPTH_BUFFER_BIT);
   
+  gl.useProgram(shaderProgram);
+  
   let fieldOfView = (45 * Math.PI) / 180;
   let aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
   let zNear = 0.1;
@@ -119,8 +121,6 @@ function drawGLScene(buffers) {
   
   setPositionAttribute(buffers);
   
-  gl.useProgram(shaderProgram);
-  
   gl.uniformMatrix4fv(
     shaderProgramInfo.uniformLocations.projectionMatrix,
     false,
@@ -133,7 +133,7 @@ function drawGLScene(buffers) {
   );
   gl.uniform2fv(shaderProgramInfo.uniformLocations.iResolution, [canvas.width, canvas.height]);
   
-  gl.uniform2fv(shaderProgramInfo.uniformLocations.coords, [X, Y]);
+  gl.uniform2fv(shaderProgramInfo.uniformLocations.pos, [X, Y]);
   gl.uniform1f(shaderProgramInfo.uniformLocations.scale, SCALE);
   
   gl.uniform1f(shaderProgramInfo.uniformLocations.time, TIME);
