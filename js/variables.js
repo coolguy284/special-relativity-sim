@@ -1,6 +1,6 @@
-let X = -1.0,
-  Y = 1.0,
-  SCALE = 5,
+let X = 0,
+  Y = 0,
+  SCALE = 10,
   TIME = 0;
 let SPEED_OF_LIGHT = 1;
 

@@ -10,7 +10,7 @@ uniform float globalTime;
 
 out vec4 outColor;
 
-bool LIGHT_TRAVEL_TIME_DELAY = false;
+bool LIGHT_TRAVEL_TIME_DELAY = true;
 bool BLACK_BEFORE_UNVIERSE_START = true;
 bool BACKGROUND_PULSE = true;
 
@@ -55,6 +55,23 @@ const float WHEEL_CENTER_RADIUS = 0.2;
 const float WHEEL_CENTER_RADIUS_SQ = WHEEL_CENTER_RADIUS * WHEEL_CENTER_RADIUS;
 const float WHEEL_START_TIME = 0.0;
 const float WHEEL_SPEED = WHEEL_INNER_RADIUS / 3.14159265358979 / 2.0 * 2.0 * SPEED_OF_LIGHT * 0.5; // in revolutions per second (WHEEL_INNER_RADIUS / 3.14159265358979 / 2.0 * 2.0 * SPEED_OF_LIGHT for lightspeed); unknown reason why * 2.0 is needed
+
+const bool WHEEL2_EXISTS = true;
+const bool WHEEL2_ENABLED = true;
+const float WHEEL2_X = 0.0;
+const float WHEEL2_Y = -1.0;
+const float WHEEL2_RADIUS = 0.7;
+const float WHEEL2_RADIUS_SQ = WHEEL2_RADIUS * WHEEL2_RADIUS;
+const float WHEEL2_THICKNESS = 0.1;
+const float WHEEL2_INNER_RADIUS = WHEEL2_RADIUS - WHEEL2_THICKNESS;
+const float WHEEL2_INNER_RADIUS_SQ = WHEEL2_INNER_RADIUS * WHEEL2_INNER_RADIUS;
+const float WHEEL2_SPOKES = 15.0;
+const float WHEEL2_THICKNESS_RADIAL = WHEEL2_THICKNESS / WHEEL2_RADIUS / 3.14159265358979 / 2.0 / 4.0 * WHEEL2_SPOKES; // unknown reason that / 4.0 is needed
+const float WHEEL2_CENTER_RADIUS = 0.2;
+const float WHEEL2_CENTER_RADIUS_SQ = WHEEL2_CENTER_RADIUS * WHEEL2_CENTER_RADIUS;
+const float WHEEL2_START_TIME = 0.0;
+const float WHEEL2_SINE_RADIUS = 3.0;
+const float WHEEL2_SINE_PERIOD = 25.0;
 
 vec3 getColorAtPlace(float x, float y, float time) {
   // all black before universe start :)
@@ -142,6 +159,43 @@ vec3 getColorAtPlace(float x, float y, float time) {
     float wheelAngleMod = mod(wheelAngle * WHEEL_SPOKES + WHEEL_THICKNESS_RADIAL / wheelThicknessAmplifDivis, 1.0) - WHEEL_THICKNESS_RADIAL / wheelThicknessAmplifDivis;
     
     if (wheelDistSq < WHEEL_RADIUS && wheelAngleMod < WHEEL_THICKNESS_RADIAL / wheelThicknessAmplifDivis) {
+      return vec3(1.0, 1.0, 1.0);
+    }
+  }
+  
+  // wheel 2
+  
+  if (WHEEL2_EXISTS) {
+    // draw wheel rim
+    
+    float wheelDeltX = x - WHEEL2_X;
+    float wheelDeltY = y - WHEEL2_Y;
+    if (time > WHEEL2_START_TIME) {
+      wheelDeltX += cos((time - WHEEL2_START_TIME) * 3.14159265358979 * 2.0 / WHEEL2_SINE_PERIOD) * WHEEL2_SINE_RADIUS;
+    } else {
+      wheelDeltX += WHEEL2_SINE_RADIUS;
+    }
+    float wheelDistSq = wheelDeltX * wheelDeltX + wheelDeltY * wheelDeltY;
+    
+    if (wheelDistSq > WHEEL2_INNER_RADIUS && wheelDistSq < WHEEL2_RADIUS) {
+      return vec3(1.0, 1.0, 1.0);
+    }
+    
+    // draw wheel center
+    
+    if (wheelDistSq < WHEEL2_CENTER_RADIUS_SQ) {
+      return vec3(1.0, 1.0, 1.0);
+    }
+    
+    // draw wheel spokes
+    
+    float wheelAngle = atan(wheelDeltY, wheelDeltX) / 3.14159265358979 / 2.0;
+    
+    float wheelThicknessAmplifDivis = sqrt(wheelDistSq / WHEEL2_RADIUS);
+    
+    float wheelAngleMod = mod(wheelAngle * WHEEL2_SPOKES + WHEEL2_THICKNESS_RADIAL / wheelThicknessAmplifDivis, 1.0) - WHEEL2_THICKNESS_RADIAL / wheelThicknessAmplifDivis;
+    
+    if (wheelDistSq < WHEEL2_RADIUS && wheelAngleMod < WHEEL2_THICKNESS_RADIAL / wheelThicknessAmplifDivis) {
       return vec3(1.0, 1.0, 1.0);
     }
   }
