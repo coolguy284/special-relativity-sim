@@ -1,4 +1,3 @@
-with (new Proxy(window, {get: (target,prop)=>{if(typeof prop=='string'&&!['window','performance','Math','Promise','Infinity'].includes(prop))console.log(target,prop);return Reflect.get(target,prop)}})) {
 let ZOOM_SCALE_FACTOR = (1 / 1.5) ** (1 / 120);
 let INERTIA_SLOWDOWN = 10;
 let INERTIA_FASTSLOWDOWN_TIME_THRESHOLD = 0.8;
@@ -178,4 +177,3 @@ window.addEventListener('wheel', e => {
   
   movementLoop();
 });
-}

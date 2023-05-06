@@ -10,7 +10,7 @@ uniform float globalTime;
 
 out vec4 outColor;
 
-bool LIGHT_TRAVEL_TIME_DELAY = true;
+bool LIGHT_TRAVEL_TIME_DELAY = false;
 bool BLACK_BEFORE_UNVIERSE_START = true;
 bool BACKGROUND_PULSE = true;
 
@@ -88,11 +88,11 @@ vec3 getColorAtPlace(float x, float y, float time) {
     
     if (EMITTER_ENABLED) {
       float particleTime = time - EMITTER_START_TIME;
-      float particleX = mod(x - EMITTER_X - particleTime * PARTICLE_SPEED - PARTICLE_RADIUS, PARTICLE_SPACING) + PARTICLE_RADIUS - PARTICLE_SPACING;
+      float particleX = -mod(-(x - EMITTER_X - EMITTER_RADIUS - particleTime * PARTICLE_SPEED), PARTICLE_SPACING) + PARTICLE_RADIUS;
       float particleY = y - EMITTER_Y;
       
-      if (x > EMITTER_X + PARTICLE_RADIUS && x < EMITTER_X + particleTime * PARTICLE_SPEED + PARTICLE_RADIUS && particleX * particleX + particleY * particleY < PARTICLE_RADIUS_SQ) {
-        float colorMod = mod(-(x - EMITTER_X - particleTime * PARTICLE_SPEED) + PARTICLE_RADIUS, PARTICLE_SPACING * 6.0) / PARTICLE_SPACING;
+      if (x > EMITTER_X + EMITTER_RADIUS && x < EMITTER_X + particleTime * PARTICLE_SPEED + EMITTER_RADIUS && particleX * particleX + particleY * particleY < PARTICLE_RADIUS_SQ) {
+        float colorMod = 6.0 - mod(x - EMITTER_X - EMITTER_RADIUS - particleTime * PARTICLE_SPEED, PARTICLE_SPACING * 6.0) / PARTICLE_SPACING;
         if (colorMod < 1.0) {
           return vec3(0.75, 0, 0);
         } else if (colorMod < 2.0) {

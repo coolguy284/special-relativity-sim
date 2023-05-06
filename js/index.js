@@ -41,7 +41,9 @@ async function renderLoop() {
       pastTime = Date.now();
     }
     
-    render();
+    if (TIME_ADVANCING || movementLoopRunning) {
+      render();
+    }
     
     await new Promise(r => requestAnimationFrame(r));
   }
@@ -76,10 +78,12 @@ window.addEventListener('keydown', e => {
       Y = 0;
       SCALE = 10;
       targetScale = 10;
+      render();
       break;
     
     case 'KeyT':
       TIME = 0;
+      render();
       break;
   }
 });
