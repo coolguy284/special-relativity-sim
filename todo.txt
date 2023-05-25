@@ -1,4 +1,4 @@
-ship icon
 timelike view
-switch to mat4 wavelength return, and color processing
+switch to struct wavelength return, and color processing
 lorenz contraction
+add an among us at 6969,6969

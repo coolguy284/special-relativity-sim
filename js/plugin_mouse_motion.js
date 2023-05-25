@@ -160,8 +160,8 @@ window.addEventListener('mousemove', e => {
 window.addEventListener('wheel', e => {
   let wheelDelta = e.wheelDelta;
   
-  pMouseX = e.x;
-  pMouseY = e.y;
+  pMouseX = realCanvasWidth / 2;
+  pMouseY = realCanvasHeight / 2;
   
   let scaleFactor = ZOOM_SCALE_FACTOR ** wheelDelta;
   

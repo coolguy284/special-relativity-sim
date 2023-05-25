@@ -18,6 +18,10 @@ const float SPEED_OF_LIGHT = 1.0;
 
 const float UNIVERSE_START = -5.0;
 
+const bool SHIP_ENABLED = true;
+const float SHIP_RADIUS = 0.2;
+const float SHIP_RADIUS_SQ = SHIP_RADIUS * SHIP_RADIUS;
+
 const float GRID_SPACING = 1.0;
 const float GRID_SPACING_1_2 = GRID_SPACING / 2.0;
 const float BORDER_THICKNESS = 0.05;
@@ -54,7 +58,7 @@ const float WHEEL_THICKNESS_RADIAL = WHEEL_THICKNESS / WHEEL_RADIUS / 3.14159265
 const float WHEEL_CENTER_RADIUS = 0.2;
 const float WHEEL_CENTER_RADIUS_SQ = WHEEL_CENTER_RADIUS * WHEEL_CENTER_RADIUS;
 const float WHEEL_START_TIME = 0.0;
-const float WHEEL_SPEED = WHEEL_INNER_RADIUS / 3.14159265358979 / 2.0 * 2.0 * SPEED_OF_LIGHT * 0.5; // in revolutions per second (WHEEL_INNER_RADIUS / 3.14159265358979 / 2.0 * 2.0 * SPEED_OF_LIGHT for lightspeed); unknown reason why * 2.0 is needed
+const float WHEEL_SPEED = WHEEL_INNER_RADIUS / 3.14159265358979 / 2.0 * 2.0 * 0.5; // in revolutions per second (WHEEL_INNER_RADIUS / 3.14159265358979 / 2.0 * 2.0 * SPEED_OF_LIGHT for lightspeed); unknown reason why * 2.0 is needed
 
 const bool WHEEL2_EXISTS = true;
 const bool WHEEL2_ENABLED = true;
@@ -72,6 +76,22 @@ const float WHEEL2_CENTER_RADIUS_SQ = WHEEL2_CENTER_RADIUS * WHEEL2_CENTER_RADIU
 const float WHEEL2_START_TIME = 0.0;
 const float WHEEL2_SINE_RADIUS = 3.0;
 const float WHEEL2_SINE_PERIOD = 25.0;
+
+struct universeFragInfo {
+  float velX;
+  float velY;
+  vec2[8] wavelengthIntensities;
+};
+
+universeFragInfo getColorAtPlace_new_BETA(float x, float y, float time) {
+  universeFragInfo e;
+  
+  e.velX = 0.0;
+  e.velY = 0.0;
+  e.wavelengthIntensities[0].x = 1.0;
+  
+  return e;
+}
 
 vec3 getColorAtPlace(float x, float y, float time) {
   // all black before universe start :)
@@ -242,5 +262,17 @@ void main() {
     outColor = vec4(getColorAtPlace(x, y, newGlobalTime), 1.0);
   } else {
     outColor = vec4(getColorAtPlace(x, y, globalTime), 1.0);
+  }
+  
+  // draw ship
+  
+  if (SHIP_ENABLED) {
+    float shipDeltX = x - pos.x;
+    float shipDeltY = y - pos.y;
+    
+    if (shipDeltX * shipDeltX + shipDeltY * shipDeltY < SHIP_RADIUS_SQ) {
+      outColor.r = outColor.r * 0.5 + 0.5;
+      outColor.gb = outColor.gb * 0.5;
+    }
   }
 }
