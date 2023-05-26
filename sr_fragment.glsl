@@ -256,11 +256,15 @@ void main() {
     
     float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
     
-    float newGlobalTime = globalTime;
-    newGlobalTime -= centerDeltDist / SPEED_OF_LIGHT;
+    float newGlobalTimeDiff = centerDeltDist / SPEED_OF_LIGHT;
+    float newGlobalTime = globalTime - newGlobalTimeDiff;
     //newGlobalTime += pow(2.0, centerDeltX / 2.0) - pow(2.0, -centerDeltX / 2.0);
     
-    outColor = vec4(getColorAtPlace(x, y, newGlobalTime), 1.0);
+    if (LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY > 0) {
+      outColor = vec4(getColorAtPlace(x - newGlobalTimeDiff * vel.x, y - newGlobalTimeDiff * vel.y, newGlobalTime), 1.0);
+    } else {
+      outColor = vec4(getColorAtPlace(x, y, newGlobalTime), 1.0);
+    }
   } else {
     outColor = vec4(getColorAtPlace(x, y, globalTime), 1.0);
   }
