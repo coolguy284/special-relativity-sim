@@ -4,9 +4,14 @@ let X = 0,
   TIME = 0;
 let VEL_X = 0, VEL_Y = 0;
 
-let SPEED_OF_LIGHT = 1;
-let TIME_ADVANCING = false;
+let LIGHT_TRAVEL_TIME_DELAY = true;
+let BLACK_BEFORE_UNVIERSE_START = true;
+let BACKGROUND_PULSE = true;
+let SPEED_OF_LIGHT = 10;
+let SHIP_RELATIVISTIC_VELOCITY_ADDITION = true;
+
 let ACCEL = 1;
 let TIME_RATE = 1;
+let TIME_ADVANCING = false;
 
 let SUBPIXEL_SCALE = 2;

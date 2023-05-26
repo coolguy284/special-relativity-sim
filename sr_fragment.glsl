@@ -4,17 +4,16 @@ precision highp float;
 
 uniform vec2 iResolution;
 
+uniform bool LIGHT_TRAVEL_TIME_DELAY;
+uniform bool BLACK_BEFORE_UNVIERSE_START;
+uniform bool BACKGROUND_PULSE;
+uniform float SPEED_OF_LIGHT;
+
 uniform vec2 pos;
 uniform float scale;
 uniform float globalTime;
 
 out vec4 outColor;
-
-bool LIGHT_TRAVEL_TIME_DELAY = true;
-bool BLACK_BEFORE_UNVIERSE_START = true;
-bool BACKGROUND_PULSE = true;
-
-const float SPEED_OF_LIGHT = 1.0;
 
 const float UNIVERSE_START = -5.0;
 

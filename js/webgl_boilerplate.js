@@ -53,6 +53,11 @@ function populateShaderProgramInfo() {
       
       iResolution: gl.getUniformLocation(shaderProgram, 'iResolution'),
       
+      LIGHT_TRAVEL_TIME_DELAY: gl.getUniformLocation(shaderProgram, 'LIGHT_TRAVEL_TIME_DELAY'),
+      BLACK_BEFORE_UNVIERSE_START: gl.getUniformLocation(shaderProgram, 'BLACK_BEFORE_UNVIERSE_START'),
+      BACKGROUND_PULSE: gl.getUniformLocation(shaderProgram, 'BACKGROUND_PULSE'),
+      SPEED_OF_LIGHT: gl.getUniformLocation(shaderProgram, 'SPEED_OF_LIGHT'),
+      
       pos: gl.getUniformLocation(shaderProgram, 'pos'),
       scale: gl.getUniformLocation(shaderProgram, 'scale'),
       
@@ -132,6 +137,11 @@ function drawGLScene(buffers) {
     modelViewMatrix
   );
   gl.uniform2fv(shaderProgramInfo.uniformLocations.iResolution, [canvas.width, canvas.height]);
+  
+  gl.uniform1i(shaderProgramInfo.uniformLocations.LIGHT_TRAVEL_TIME_DELAY, LIGHT_TRAVEL_TIME_DELAY);
+  gl.uniform1i(shaderProgramInfo.uniformLocations.BLACK_BEFORE_UNVIERSE_START, BLACK_BEFORE_UNVIERSE_START);
+  gl.uniform1i(shaderProgramInfo.uniformLocations.BACKGROUND_PULSE, BACKGROUND_PULSE);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.SPEED_OF_LIGHT, SPEED_OF_LIGHT);
   
   gl.uniform2fv(shaderProgramInfo.uniformLocations.pos, [X, Y]);
   gl.uniform1f(shaderProgramInfo.uniformLocations.scale, SCALE);

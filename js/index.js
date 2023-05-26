@@ -47,7 +47,7 @@ async function glInit() {
 function render() {
   drawGLScene(glBuffers);
   
-  coords.textContent = `X: ${X.toFixed(3)}, Y: ${Y.toFixed(3)}, Scale: ${SCALE.toFixed(3)}, Time: ${TIME.toFixed(3)}`;
+  coords.textContent = `X: ${X.toFixed(3)}, Y: ${Y.toFixed(3)}, VelX: ${VEL_X.toFixed(17)}, VelY: ${VEL_Y.toFixed(17)}, Scale: ${SCALE.toFixed(3)}, Time: ${TIME.toFixed(3)}`;
 }
 
 async function renderLoop() {
@@ -70,8 +70,12 @@ async function renderLoop() {
           let velMag = Math.hypot(VEL_X, VEL_Y);
           if (velMag > 0) {
             if (velMag <= ACCEL * timePassed) {
-              ACCEL_X = VEL_X * -velMag / timePassed;
-              ACCEL_Y = VEL_Y * -velMag / timePassed;
+              /*ACCEL_X = VEL_X * -velMag / timePassed;
+              ACCEL_Y = VEL_Y * -velMag / timePassed;*/
+              ACCEL_X = 0;
+              ACCEL_Y = 0;
+              VEL_X = 0;
+              VEL_Y = 0;
             } else {
               ACCEL_X = VEL_X / -velMag * ACCEL;
               ACCEL_Y = VEL_Y / -velMag * ACCEL;
@@ -83,10 +87,20 @@ async function renderLoop() {
         } else {
           ACCEL_X = ctrls.left * -ACCEL + ctrls.right * ACCEL;
           ACCEL_Y = ctrls.down * -ACCEL + ctrls.up * ACCEL;
+          let accelMag = Math.hypot(ACCEL_X, ACCEL_Y);
+          if (accelMag != 0) {
+            ACCEL_X /= accelMag;
+            ACCEL_Y /= accelMag;
+          }
         }
         
-        VEL_X += ACCEL_X * timePassed;
-        VEL_Y += ACCEL_Y * timePassed;
+        if (SHIP_RELATIVISTIC_VELOCITY_ADDITION) {
+          [ ACCEL_X, ACCEL_Y ] = relativistic_accelerationCalculation(ACCEL_X, ACCEL_Y, SPEED_OF_LIGHT);
+          [ VEL_X, VEL_Y ] = relativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X * timePassed, ACCEL_Y * timePassed, SPEED_OF_LIGHT);
+        } else {
+          [ ACCEL_X, ACCEL_Y ] = nonRelativistic_accelerationCalculation(ACCEL_X, ACCEL_Y);
+          [ VEL_X, VEL_Y ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X * timePassed, ACCEL_Y * timePassed);
+        }
         
         X += VEL_X * timePassed;
         Y += VEL_Y * timePassed;

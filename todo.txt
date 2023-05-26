@@ -1,3 +1,4 @@
+add stage wraparound at +- 500
 timelike view
 switch to struct wavelength return, and color processing
 lorenz contraction
