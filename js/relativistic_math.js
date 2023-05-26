@@ -54,3 +54,9 @@ function relativistic_velocityAddition(velX_1, velY_1, velX_2, velY_2, lightSpee
   
   return rapidityToVelocity(resVelX, resVelY, lightSpeed);
 }
+
+function getLorenzFactor(velX, velY, lightSpeed) {
+  let velMag = Math.hypot(velX, velY);
+  
+  return 1 / (1 - velMag ** 2 / lightSpeed ** 2) ** 0.5;
+}

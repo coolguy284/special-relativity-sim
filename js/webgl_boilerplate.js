@@ -55,6 +55,9 @@ function populateShaderProgramInfo() {
       
       LIGHT_TRAVEL_TIME_DELAY: gl.getUniformLocation(shaderProgram, 'LIGHT_TRAVEL_TIME_DELAY'),
       LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY: gl.getUniformLocation(shaderProgram, 'LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY'),
+      UNIVERSE_TIME_DIALATION: gl.getUniformLocation(shaderProgram, 'UNIVERSE_TIME_DIALATION'),
+      UNIVERSE_LENGTH_CONTRACTION: gl.getUniformLocation(shaderProgram, 'UNIVERSE_LENGTH_CONTRACTION'),
+      ITEM_LENGTH_CONTRACTION: gl.getUniformLocation(shaderProgram, 'ITEM_LENGTH_CONTRACTION'),
       BLACK_BEFORE_UNIVERSE_START: gl.getUniformLocation(shaderProgram, 'BLACK_BEFORE_UNIVERSE_START'),
       BACKGROUND_PULSE: gl.getUniformLocation(shaderProgram, 'BACKGROUND_PULSE'),
       SPEED_OF_LIGHT: gl.getUniformLocation(shaderProgram, 'SPEED_OF_LIGHT'),
@@ -142,6 +145,9 @@ function drawGLScene(buffers) {
   
   gl.uniform1i(shaderProgramInfo.uniformLocations.LIGHT_TRAVEL_TIME_DELAY, Number(LIGHT_TRAVEL_TIME_DELAY));
   gl.uniform1i(shaderProgramInfo.uniformLocations.LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY, Number(LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_TIME_DIALATION, Number(UNIVERSE_TIME_DIALATION));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_LENGTH_CONTRACTION, Number(UNIVERSE_LENGTH_CONTRACTION));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.ITEM_LENGTH_CONTRACTION, Number(ITEM_LENGTH_CONTRACTION));
   gl.uniform1i(shaderProgramInfo.uniformLocations.BLACK_BEFORE_UNIVERSE_START, Number(BLACK_BEFORE_UNIVERSE_START));
   gl.uniform1i(shaderProgramInfo.uniformLocations.BACKGROUND_PULSE, Number(BACKGROUND_PULSE));
   gl.uniform1f(shaderProgramInfo.uniformLocations.SPEED_OF_LIGHT, SPEED_OF_LIGHT);

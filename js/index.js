@@ -23,6 +23,7 @@ Object.entries(ctrlMap).forEach(x => {
   }
 });
 let ctrls = { up: false, down: false, left: false, right: false, brake: false };
+let velLorenzFactor = 0;
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
@@ -47,15 +48,17 @@ async function glInit() {
 function render() {
   drawGLScene(glBuffers);
   
-  coords.textContent = `X: ${X.toFixed(3)}, Y: ${Y.toFixed(3)}, VelX: ${VEL_X.toFixed(17)}, VelY: ${VEL_Y.toFixed(17)}, Scale: ${SCALE.toFixed(3)}, Time: ${TIME.toFixed(3)}`;
+  coords.textContent = `X: ${X.toFixed(3)}, Y: ${Y.toFixed(3)}, VelX: ${VEL_X.toFixed(17)}, VelY: ${VEL_Y.toFixed(17)}, Scale: ${SCALE.toFixed(3)}, Time: ${TIME.toFixed(3)}, Proper Time: ${PROPER_TIME.toFixed(3)}, Lorenz Factor: ${velLorenzFactor.toFixed(3)}`;
 }
 
 async function renderLoop() {
   while (true) {
-    let timePassed;
+    let properTimePassed, timePassed;
     if (TIME_ADVANCING) {
       let currentTime = Date.now();
-      timePassed = (currentTime - pastTime) / 1000 * TIME_RATE;
+      properTimePassed = (currentTime - pastTime) / 1000 * TIME_RATE;
+      timePassed = properTimePassed * velLorenzFactor;
+      PROPER_TIME += properTimePassed;
       TIME += timePassed;
       pastTime = currentTime;
     } else {
@@ -69,9 +72,9 @@ async function renderLoop() {
         if (ctrls.brake) {
           let velMag = Math.hypot(VEL_X, VEL_Y);
           if (velMag > 0) {
-            if (velMag <= ACCEL * timePassed) {
-              /*ACCEL_X = VEL_X * -velMag / timePassed;
-              ACCEL_Y = VEL_Y * -velMag / timePassed;*/
+            if (velMag <= ACCEL * properTimePassed) {
+              /*ACCEL_X = VEL_X * -velMag / properTimePassed;
+              ACCEL_Y = VEL_Y * -velMag / properTimePassed;*/
               ACCEL_X = 0;
               ACCEL_Y = 0;
               VEL_X = 0;
@@ -96,11 +99,13 @@ async function renderLoop() {
         
         if (SHIP_RELATIVISTIC_VELOCITY_ADDITION) {
           [ ACCEL_X, ACCEL_Y ] = relativistic_accelerationCalculation(ACCEL_X, ACCEL_Y, SPEED_OF_LIGHT);
-          [ VEL_X, VEL_Y ] = relativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X * timePassed, ACCEL_Y * timePassed, SPEED_OF_LIGHT);
+          [ VEL_X, VEL_Y ] = relativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed, SPEED_OF_LIGHT);
         } else {
           [ ACCEL_X, ACCEL_Y ] = nonRelativistic_accelerationCalculation(ACCEL_X, ACCEL_Y);
-          [ VEL_X, VEL_Y ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X * timePassed, ACCEL_Y * timePassed);
+          [ VEL_X, VEL_Y ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed);
         }
+        
+        velLorenzFactor = getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT);
         
         X += VEL_X * timePassed;
         Y += VEL_Y * timePassed;
@@ -144,6 +149,7 @@ window.addEventListener('keydown', e => {
       targetScale = 10;
       VEL_X = 0;
       VEL_Y = 0;
+      velLorenzFactor = 0;
       render();
       break;
     
