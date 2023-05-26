@@ -147,6 +147,11 @@ window.addEventListener('keydown', e => {
       render();
       break;
     
+    case 'KeyT':
+      TIME = 0;
+      render();
+      break;
+    
     default:
       if (e.code in ctrlKeys) {
         ctrlKeys[e.code] = true;

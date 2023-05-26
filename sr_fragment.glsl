@@ -4,12 +4,14 @@ precision highp float;
 
 uniform vec2 iResolution;
 
-uniform bool LIGHT_TRAVEL_TIME_DELAY;
-uniform bool BLACK_BEFORE_UNVIERSE_START;
-uniform bool BACKGROUND_PULSE;
+uniform int LIGHT_TRAVEL_TIME_DELAY;
+uniform int LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY;
+uniform int BLACK_BEFORE_UNIVERSE_START;
+uniform int BACKGROUND_PULSE;
 uniform float SPEED_OF_LIGHT;
 
 uniform vec2 pos;
+uniform vec2 vel;
 uniform float scale;
 uniform float globalTime;
 
@@ -95,7 +97,7 @@ universeFragInfo getColorAtPlace_new_BETA(float x, float y, float time) {
 vec3 getColorAtPlace(float x, float y, float time) {
   // all black before universe start :)
   
-  if (BLACK_BEFORE_UNVIERSE_START && time < UNIVERSE_START) {
+  if (BLACK_BEFORE_UNIVERSE_START > 0 && time < UNIVERSE_START) {
     return vec3(0.0, 0.0, 0.0);
   }
   
@@ -231,7 +233,7 @@ vec3 getColorAtPlace(float x, float y, float time) {
   } else if (xBorder || yBorder) {
     return vec3(0.5, 0.5, 0.5);
   } else {
-    if (BACKGROUND_PULSE) {
+    if (BACKGROUND_PULSE > 0) {
       return vec3(
         -cos(time * 5.0) * BACKGROUND_PULSE_INTENSITY_1_2 + BACKGROUND_PULSE_INTENSITY_1_2,
         -cos(time * 5.0) * BACKGROUND_PULSE_INTENSITY_1_2 + BACKGROUND_PULSE_INTENSITY_1_2,
@@ -248,7 +250,7 @@ void main() {
   float x = pos.x + xNorm * (iResolution.x / iResolution.y) * scale;
   float y = pos.y + yNorm * scale;
   
-  if (LIGHT_TRAVEL_TIME_DELAY) {
+  if (LIGHT_TRAVEL_TIME_DELAY > 0) {
     float centerDeltX = x - pos.x;
     float centerDeltY = y - pos.y;
     
