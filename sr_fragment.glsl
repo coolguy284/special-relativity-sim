@@ -279,7 +279,11 @@ void main() {
     
     place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
     
-    place.x *= velLorenzFactor;
+    float velMag = sqrt(vel.x * vel.x + vel.y * vel.y);
+    float scaleF = cosh(atanh(velMag));
+    
+    place.z += velMag * place.x * scaleF;
+    place.x = place.x * scaleF;
     
     place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
     
