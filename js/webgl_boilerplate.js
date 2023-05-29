@@ -55,7 +55,7 @@ function populateShaderProgramInfo() {
       
       LIGHT_TRAVEL_TIME_DELAY: gl.getUniformLocation(shaderProgram, 'LIGHT_TRAVEL_TIME_DELAY'),
       LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY: gl.getUniformLocation(shaderProgram, 'LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY'),
-      UNIVERSE_TIME_DIALATION: gl.getUniformLocation(shaderProgram, 'UNIVERSE_TIME_DIALATION'),
+      UNIVERSE_TIME_SHIFTING: gl.getUniformLocation(shaderProgram, 'UNIVERSE_TIME_SHIFTING'),
       UNIVERSE_LENGTH_CONTRACTION: gl.getUniformLocation(shaderProgram, 'UNIVERSE_LENGTH_CONTRACTION'),
       ITEM_LENGTH_CONTRACTION: gl.getUniformLocation(shaderProgram, 'ITEM_LENGTH_CONTRACTION'),
       BLACK_BEFORE_UNIVERSE_START: gl.getUniformLocation(shaderProgram, 'BLACK_BEFORE_UNIVERSE_START'),
@@ -65,8 +65,8 @@ function populateShaderProgramInfo() {
       pos: gl.getUniformLocation(shaderProgram, 'pos'),
       vel: gl.getUniformLocation(shaderProgram, 'vel'),
       scale: gl.getUniformLocation(shaderProgram, 'scale'),
-      
       globalTime: gl.getUniformLocation(shaderProgram, 'globalTime'),
+      velLorenzFactor: gl.getUniformLocation(shaderProgram, 'velLorenzFactor'),
     }
   };
 }
@@ -145,7 +145,7 @@ function drawGLScene(buffers) {
   
   gl.uniform1i(shaderProgramInfo.uniformLocations.LIGHT_TRAVEL_TIME_DELAY, Number(LIGHT_TRAVEL_TIME_DELAY));
   gl.uniform1i(shaderProgramInfo.uniformLocations.LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY, Number(LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_TIME_DIALATION, Number(UNIVERSE_TIME_DIALATION));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_TIME_SHIFTING, Number(UNIVERSE_TIME_SHIFTING));
   gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_LENGTH_CONTRACTION, Number(UNIVERSE_LENGTH_CONTRACTION));
   gl.uniform1i(shaderProgramInfo.uniformLocations.ITEM_LENGTH_CONTRACTION, Number(ITEM_LENGTH_CONTRACTION));
   gl.uniform1i(shaderProgramInfo.uniformLocations.BLACK_BEFORE_UNIVERSE_START, Number(BLACK_BEFORE_UNIVERSE_START));
@@ -155,8 +155,8 @@ function drawGLScene(buffers) {
   gl.uniform2fv(shaderProgramInfo.uniformLocations.pos, [X, Y]);
   gl.uniform2fv(shaderProgramInfo.uniformLocations.vel, [VEL_X, VEL_Y]);
   gl.uniform1f(shaderProgramInfo.uniformLocations.scale, SCALE);
-  
   gl.uniform1f(shaderProgramInfo.uniformLocations.globalTime, TIME);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.velLorenzFactor, velLorenzFactor);
   
   let offset = 0;
   let vertexCount = 4;

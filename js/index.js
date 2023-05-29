@@ -23,7 +23,7 @@ Object.entries(ctrlMap).forEach(x => {
   }
 });
 let ctrls = { up: false, down: false, left: false, right: false, brake: false };
-let velLorenzFactor = 0;
+let velLorenzFactor = 1;
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
@@ -149,12 +149,13 @@ window.addEventListener('keydown', e => {
       targetScale = 10;
       VEL_X = 0;
       VEL_Y = 0;
-      velLorenzFactor = 0;
+      velLorenzFactor = 1;
       render();
       break;
     
     case 'KeyT':
       TIME = 0;
+      PROPER_TIME = 0;
       render();
       break;
     

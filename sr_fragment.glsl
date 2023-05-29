@@ -6,7 +6,7 @@ uniform vec2 iResolution;
 
 uniform int LIGHT_TRAVEL_TIME_DELAY;
 uniform int LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY;
-uniform int UNIVERSE_TIME_DIALATION;
+uniform int UNIVERSE_TIME_SHIFTING;
 uniform int UNIVERSE_LENGTH_CONTRACTION;
 uniform int ITEM_LENGTH_CONTRACTION;
 uniform int BLACK_BEFORE_UNIVERSE_START;
@@ -17,6 +17,7 @@ uniform vec2 pos;
 uniform vec2 vel;
 uniform float scale;
 uniform float globalTime;
+uniform float velLorenzFactor;
 
 out vec4 outColor;
 
@@ -253,24 +254,40 @@ void main() {
   float x = pos.x + xNorm * (iResolution.x / iResolution.y) * scale;
   float y = pos.y + yNorm * scale;
   
+  vec3 place = vec3(x, y, globalTime);
+  
   if (LIGHT_TRAVEL_TIME_DELAY > 0) {
     float centerDeltX = x - pos.x;
     float centerDeltY = y - pos.y;
     
     float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
     
-    float newGlobalTimeDiff = centerDeltDist / SPEED_OF_LIGHT;
-    float newGlobalTime = globalTime - newGlobalTimeDiff;
-    //newGlobalTime += pow(2.0, centerDeltX / 2.0) - pow(2.0, -centerDeltX / 2.0);
+    float newGlobalTimeDiff = -centerDeltDist / SPEED_OF_LIGHT;
+    //newGlobalTimeDiff += pow(2.0, centerDeltX / 2.0) - pow(2.0, -centerDeltX / 2.0);
+    
+    place.z += newGlobalTimeDiff;
     
     if (LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY > 0) {
-      outColor = vec4(getColorAtPlace(x - newGlobalTimeDiff * vel.x, y - newGlobalTimeDiff * vel.y, newGlobalTime), 1.0);
-    } else {
-      outColor = vec4(getColorAtPlace(x, y, newGlobalTime), 1.0);
+      place.xy -= -newGlobalTimeDiff * vel;
     }
-  } else {
-    outColor = vec4(getColorAtPlace(x, y, globalTime), 1.0);
   }
+  
+  if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+    place.xy -= pos;
+    
+    float velAng = atan(vel.y, vel.x);
+    
+    place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
+    
+    place.x *= velLorenzFactor;
+    
+    place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
+    
+    place.xy += pos;
+  }
+  
+  // calculate color
+  outColor = vec4(getColorAtPlace(place.x, place.y, place.z), 1.0);
   
   // draw ship
   
