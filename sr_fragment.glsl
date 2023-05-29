@@ -132,11 +132,12 @@ vec3 getColorAtPlace(float x, float y, float time) {
     // draw circles
     
     if (EMITTER_ENABLED) {
+      float particleLengthContraction = ITEM_LENGTH_CONTRACTION > 0 ? sqrt(1.0 - PARTICLE_SPEED * PARTICLE_SPEED / SPEED_OF_LIGHT * SPEED_OF_LIGHT) : 1.0;
       float particleTime = time - EMITTER_START_TIME;
-      float particleX = -mod(-(x - EMITTER_X - EMITTER_RADIUS - particleTime * PARTICLE_SPEED), PARTICLE_SPACING) + PARTICLE_RADIUS;
+      float particleX = -mod(-(x - EMITTER_X - EMITTER_RADIUS - particleTime * PARTICLE_SPEED), PARTICLE_SPACING) + PARTICLE_RADIUS * particleLengthContraction;
       float particleY = y - EMITTER_Y;
       
-      if (x > EMITTER_X + EMITTER_RADIUS && x < EMITTER_X + particleTime * PARTICLE_SPEED + EMITTER_RADIUS && particleX * particleX + particleY * particleY < PARTICLE_RADIUS_SQ) {
+      if (x > EMITTER_X + EMITTER_RADIUS && x < EMITTER_X + particleTime * PARTICLE_SPEED + EMITTER_RADIUS && particleX * particleX / particleLengthContraction / particleLengthContraction + particleY * particleY < PARTICLE_RADIUS_SQ) {
         float colorMod = 6.0 - mod(x - EMITTER_X - EMITTER_RADIUS - particleTime * PARTICLE_SPEED, PARTICLE_SPACING * 6.0) / PARTICLE_SPACING;
         if (colorMod < 1.0) {
           return vec3(0.75, 0, 0);
