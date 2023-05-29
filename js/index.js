@@ -23,7 +23,10 @@ Object.entries(ctrlMap).forEach(x => {
   }
 });
 let ctrls = { up: false, down: false, left: false, right: false, brake: false };
+let velMag = 0, velAng = 0;
 let velLorenzFactor = 1;
+let velRapidity = 0;
+let velRelativityScaleFactor = 1;
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
@@ -48,7 +51,7 @@ async function glInit() {
 function render() {
   drawGLScene(glBuffers);
   
-  coords.textContent = `X: ${X.toFixed(3)}, Y: ${Y.toFixed(3)}, VelX: ${VEL_X.toFixed(17)}, VelY: ${VEL_Y.toFixed(17)}, Scale: ${SCALE.toFixed(3)}, Time: ${TIME.toFixed(3)}, Proper Time: ${PROPER_TIME.toFixed(3)}, Lorenz Factor: ${velLorenzFactor.toFixed(3)}`;
+  coords.innerHTML = `X: ${X.toFixed(3)}, Y: ${Y.toFixed(3)}, Scale: ${SCALE.toFixed(3)}, Time: ${TIME.toFixed(3)}<br>VelX: ${VEL_X.toFixed(17)}, VelY: ${VEL_Y.toFixed(17)}, VelMag: ${velMag.toFixed(17)}<br>Proper Time: ${PROPER_TIME.toFixed(3)}, Rapidity: ${velRapidity.toFixed(3)}, Lorenz Factor: ${velLorenzFactor.toFixed(3)}`;
 }
 
 async function renderLoop() {
@@ -105,7 +108,11 @@ async function renderLoop() {
           [ VEL_X, VEL_Y ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed);
         }
         
+        velMag = Math.hypot(VEL_X, VEL_Y);
+        velAng = Math.atan2(VEL_Y, VEL_X);
         velLorenzFactor = getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT);
+        velRapidity = Math.atanh(velMag);
+        velRelativityScaleFactor = Math.cosh(velRapidity);
         
         X += VEL_X * timePassed;
         Y += VEL_Y * timePassed;
@@ -149,7 +156,11 @@ window.addEventListener('keydown', e => {
       targetScale = 10;
       VEL_X = 0;
       VEL_Y = 0;
+      velMag = 0;
+      velAng = 0;
       velLorenzFactor = 1;
+      velRapidity = 0;
+      velRelativityScaleFactor = 1;
       render();
       break;
     

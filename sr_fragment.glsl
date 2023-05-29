@@ -17,7 +17,10 @@ uniform vec2 pos;
 uniform vec2 vel;
 uniform float scale;
 uniform float globalTime;
+uniform float velMag;
+uniform float velAng;
 uniform float velLorenzFactor;
+uniform float velRelativityScaleFactor;
 
 out vec4 outColor;
 
@@ -272,18 +275,17 @@ void main() {
     }
   }
   
-  if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+  if (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0) {
     place.xy -= pos;
-    
-    float velAng = atan(vel.y, vel.x);
     
     place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
     
-    float velMag = sqrt(vel.x * vel.x + vel.y * vel.y);
-    float scaleF = cosh(atanh(velMag));
-    
-    place.z += velMag * place.x * scaleF;
-    place.x = place.x * scaleF;
+    if (UNIVERSE_TIME_SHIFTING > 0) {
+      place.z += velMag * place.x * velRelativityScaleFactor;
+    }
+    if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+      place.x = place.x * velRelativityScaleFactor;
+    }
     
     place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
     

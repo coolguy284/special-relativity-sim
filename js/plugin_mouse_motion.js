@@ -9,7 +9,7 @@ let INERTIA_ZOOM_THRESHOLD = 1e-2;
 let PREV_MOUSE_BUFFER_LENGTH = 3;
 let PREV_MOUSE_BUFFER_TIMESPAN = 0.1 * 1000;
 
-let velX, velY, velMag;
+let screenVelX, screenVelY, screenVelMag;
 let movementLoopRunning = false;
 let targetScale = SCALE, targetScalePMouseX, targetScalePMouseY;
 let mouseDown = false;
@@ -26,8 +26,8 @@ async function movementLoop() {
   
   while (true) {
     let processMovement, processZoom;
-    processMovement = Math.abs(velX) >= INERTIA_MOVE_THRESHOLD ||
-      Math.abs(velY) >= INERTIA_MOVE_THRESHOLD;
+    processMovement = Math.abs(screenVelX) >= INERTIA_MOVE_THRESHOLD ||
+      Math.abs(screenVelY) >= INERTIA_MOVE_THRESHOLD;
     processZoom = Math.abs(Math.log(targetScale / SCALE)) >= INERTIA_ZOOM_THRESHOLD;
     
     let lastFrameTime;
@@ -39,26 +39,26 @@ async function movementLoop() {
     
     if (processMovement) {
       if (!mouseDown) {
-        X -= velX / realCanvasHeight * SCALE;
-        Y -= velY / realCanvasHeight * SCALE;
+        X -= screenVelX / realCanvasHeight * SCALE;
+        Y -= screenVelY / realCanvasHeight * SCALE;
         
         if (pTimestamp) {
           let newVelMag;
           let timeSinceUnclicked = (timestamp - timeUnclicked) / 1000;
-          if (timeSinceUnclicked > INERTIA_FASTSLOWDOWN_TIME_THRESHOLD && velMag > INERTIA_FASTSLOWDOWN_VEL_THRESHOLD) {
+          if (timeSinceUnclicked > INERTIA_FASTSLOWDOWN_TIME_THRESHOLD && screenVelMag > INERTIA_FASTSLOWDOWN_VEL_THRESHOLD) {
             // bigger for fast speeds
-            newVelMag = Math.max((velMag - INERTIA_SLOWDOWN * lastFrameTime) * INERTIA_SLOWDOWN_FACTOR ** lastFrameTime, 0);
+            newVelMag = Math.max((screenVelMag - INERTIA_SLOWDOWN * lastFrameTime) * INERTIA_SLOWDOWN_FACTOR ** lastFrameTime, 0);
           } else {
             // linear for slow speeds
-            newVelMag = Math.max(velMag - INERTIA_SLOWDOWN * lastFrameTime, 0);
+            newVelMag = Math.max(screenVelMag - INERTIA_SLOWDOWN * lastFrameTime, 0);
           }
           
-          let slowdownFactor = velMag != 0 ? newVelMag / velMag : 0;
+          let slowdownFactor = screenVelMag != 0 ? newVelMag / screenVelMag : 0;
           
-          velX *= slowdownFactor;
-          velY *= slowdownFactor;
+          screenVelX *= slowdownFactor;
+          screenVelY *= slowdownFactor;
           
-          velMag = newVelMag;
+          screenVelMag = newVelMag;
         }
       }
     }
@@ -85,8 +85,8 @@ async function movementLoop() {
     
     // call next iteration of loop
     
-    if (Math.abs(velX) < INERTIA_MOVE_THRESHOLD &&
-        Math.abs(velY) < INERTIA_MOVE_THRESHOLD &&
+    if (Math.abs(screenVelX) < INERTIA_MOVE_THRESHOLD &&
+        Math.abs(screenVelY) < INERTIA_MOVE_THRESHOLD &&
         Math.abs(Math.log(targetScale / SCALE)) < INERTIA_ZOOM_THRESHOLD) {
       movementLoopRunning = false;
       pTimestamp = null;
@@ -116,8 +116,8 @@ window.addEventListener('mouseup', e => {
   let mouseDragSum = previousMouseDrags.filter(x => x[2] > minValidTime).reduce((a, c) => [a[0] + c[0], a[1] + c[1]], [0, 0]);
   let mouseDrag = previousMouseDrags.length ? [mouseDragSum[0] / previousMouseDrags.length, mouseDragSum[1] / previousMouseDrags.length] : [0, 0];
   
-  velX = mouseDrag[0];
-  velY = mouseDrag[1];
+  screenVelX = mouseDrag[0];
+  screenVelY = mouseDrag[1];
   
   previousMouseDrags.splice(0, Infinity);
   
@@ -128,26 +128,26 @@ window.addEventListener('mousemove', e => {
   let x = e.x, y = e.y;
   
   if (mouseDown) {
-    velX = x - pMouseX;
-    velY = -y + pMouseY;
+    screenVelX = x - pMouseX;
+    screenVelY = -y + pMouseY;
     
-    velMag = Math.hypot(velX, velY);
+    screenVelMag = Math.hypot(screenVelX, screenVelY);
     
     if (typeof X == 'object') {
       // math.js coordinates
-      X = math.subtract(X, math.multiply(math.bignumber(velX / realCanvasHeight), SCALE));
-      Y = math.subtract(Y, math.multiply(math.bignumber(velY / realCanvasHeight), SCALE));
+      X = math.subtract(X, math.multiply(math.bignumber(screenVelX / realCanvasHeight), SCALE));
+      Y = math.subtract(Y, math.multiply(math.bignumber(screenVelY / realCanvasHeight), SCALE));
     } else {
       // regular coordinates
-      X -= velX / realCanvasHeight * SCALE;
-      Y -= velY / realCanvasHeight * SCALE;
+      X -= screenVelX / realCanvasHeight * SCALE;
+      Y -= screenVelY / realCanvasHeight * SCALE;
     }
   }
   
   pMouseX = x;
   pMouseY = y;
   
-  previousMouseDrags.push([velX, velY, performance.now()]);
+  previousMouseDrags.push([screenVelX, screenVelY, performance.now()]);
   if (previousMouseDrags.length > PREV_MOUSE_BUFFER_LENGTH) {
     previousMouseDrags.splice(0, 1);
   }
@@ -171,8 +171,8 @@ window.addEventListener('wheel', e => {
   targetScalePMouseY = pMouseY;
   
   if (!mouseDown) {
-    velX = 0;
-    velY = 0;
+    screenVelX = 0;
+    screenVelY = 0;
   }
   
   movementLoop();
