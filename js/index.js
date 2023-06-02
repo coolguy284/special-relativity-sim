@@ -95,8 +95,8 @@ async function renderLoop() {
           ACCEL_Y = ctrls.down * -ACCEL + ctrls.up * ACCEL;
           let accelMag = Math.hypot(ACCEL_X, ACCEL_Y);
           if (accelMag != 0) {
-            ACCEL_X /= accelMag;
-            ACCEL_Y /= accelMag;
+            ACCEL_X /= accelMag / ACCEL;
+            ACCEL_Y /= accelMag / ACCEL;
           }
         }
         
@@ -110,9 +110,9 @@ async function renderLoop() {
         
         velMag = Math.hypot(VEL_X, VEL_Y);
         velAng = Math.atan2(VEL_Y, VEL_X);
-        velLorenzFactor = getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT);
-        velRapidity = Math.atanh(velMag);
-        velRelativityScaleFactor = Math.cosh(velRapidity);
+        velLorenzFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT) : 1;
+        velRapidity = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.atanh(velMag) : 0;
+        velRelativityScaleFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.cosh(velRapidity) : 1;
         
         X += VEL_X * timePassed;
         Y += VEL_Y * timePassed;

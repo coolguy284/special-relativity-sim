@@ -260,7 +260,7 @@ void main() {
   
   vec3 place = vec3(x, y, globalTime);
   
-  if (LIGHT_TRAVEL_TIME_DELAY > 0) {
+  if (LIGHT_TRAVEL_TIME_DELAY > 0 && !(UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
     float centerDeltX = x - pos.x;
     float centerDeltY = y - pos.y;
     
@@ -274,9 +274,7 @@ void main() {
     if (LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY > 0) {
       place.xy -= -newGlobalTimeDiff * vel;
     }
-  }
-  
-  if (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0) {
+  } else if (!(LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
     place.xy -= pos;
     
     place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
@@ -286,6 +284,35 @@ void main() {
     }
     if (UNIVERSE_LENGTH_CONTRACTION > 0) {
       place.x = place.x * velRelativityScaleFactor;
+    }
+    
+    place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
+    
+    place.xy += pos;
+  } else if ((LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
+    float centerDeltX = x - pos.x;
+    float centerDeltY = y - pos.y;
+    
+    float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
+    
+    float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
+    
+    place.xy -= pos;
+    
+    place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
+    
+    if (UNIVERSE_TIME_SHIFTING > 0) {
+      place.z += velMag * place.x * velRelativityScaleFactor;
+    }
+    if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+      place.x = place.x * velRelativityScaleFactor;
+    }
+    
+    if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+      place.x += velMag * timeShift * velRelativityScaleFactor;
+    }
+    if (UNIVERSE_TIME_SHIFTING > 0) {
+      place.z += timeShift * velRelativityScaleFactor;
     }
     
     place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
