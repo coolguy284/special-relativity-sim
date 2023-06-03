@@ -106,6 +106,7 @@ async function renderLoop() {
           ACCEL_X = ctrls.left * -ACCEL + ctrls.right * ACCEL;
           ACCEL_Y = ctrls.down * -ACCEL + ctrls.up * ACCEL;
           let accelMag = Math.hypot(ACCEL_X, ACCEL_Y);
+          if (ACCEL < 0) accelMag *= -1;
           if (accelMag != 0) {
             ACCEL_X /= accelMag / ACCEL;
             ACCEL_Y /= accelMag / ACCEL;
