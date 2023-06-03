@@ -35,12 +35,16 @@ async function movementLoop() {
       lastFrameTime = (timestamp - pTimestamp) / 1000;
     }
     
+    // use different axis for y if timelike view enabled
+    
+    let pseudoY = TIMELIKE_VIEW ? TIME : Y;
+    
     // movement processing
     
     if (processMovement) {
       if (!mouseDown) {
         X -= screenVelX / realCanvasHeight * SCALE;
-        Y -= screenVelY / realCanvasHeight * SCALE;
+        pseudoY -= screenVelY / realCanvasHeight * SCALE;
         
         if (pTimestamp) {
           let newVelMag;
@@ -69,18 +73,26 @@ async function movementLoop() {
       let scaleFactor = Math.exp(Math.log(targetScale / SCALE) * Math.min(INERTIA_ZOOM_FACTOR * lastFrameTime, 1));
       
       let cxCursor = X + (targetScalePMouseX - realCanvasWidth / 2) / realCanvasHeight * SCALE;
-      let cyCursor = Y + -(targetScalePMouseY - realCanvasHeight / 2) / realCanvasHeight * SCALE;
+      let cyCursor = pseudoY + -(targetScalePMouseY - realCanvasHeight / 2) / realCanvasHeight * SCALE;
       
       let cxDiff = cxCursor - X;
-      let cyDiff = cyCursor - Y;
+      let cyDiff = cyCursor - pseudoY;
       
       let cxScaleDiff = cxDiff - cxDiff * scaleFactor;
       let cyScaleDiff = cyDiff - cyDiff * scaleFactor;
       
       X += cxScaleDiff;
-      Y += cyScaleDiff;
+      pseudoY += cyScaleDiff;
       
       SCALE *= scaleFactor;
+    }
+    
+    // use different axis for y if timelike view enabled
+    
+    if (TIMELIKE_VIEW) {
+      TIME = pseudoY;
+    } else {
+      Y = pseudoY;
     }
     
     // call next iteration of loop
@@ -133,14 +145,15 @@ window.addEventListener('mousemove', e => {
     
     screenVelMag = Math.hypot(screenVelX, screenVelY);
     
-    if (typeof X == 'object') {
-      // math.js coordinates
-      X = math.subtract(X, math.multiply(math.bignumber(screenVelX / realCanvasHeight), SCALE));
-      Y = math.subtract(Y, math.multiply(math.bignumber(screenVelY / realCanvasHeight), SCALE));
+    let pseudoY = TIMELIKE_VIEW ? TIME : Y;
+    
+    X -= screenVelX / realCanvasHeight * SCALE;
+    pseudoY -= screenVelY / realCanvasHeight * SCALE;
+    
+    if (TIMELIKE_VIEW) {
+      TIME = pseudoY;
     } else {
-      // regular coordinates
-      X -= screenVelX / realCanvasHeight * SCALE;
-      Y -= screenVelY / realCanvasHeight * SCALE;
+      Y = pseudoY;
     }
   }
   

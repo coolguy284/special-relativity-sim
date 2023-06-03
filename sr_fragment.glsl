@@ -258,78 +258,86 @@ void main() {
   float yNorm = gl_FragCoord.y / iResolution.y - 0.5;
   
   float x = pos.x + xNorm * (iResolution.x / iResolution.y) * scale;
-  float y = pos.y + yNorm * scale;
+  float y;
   
-  vec3 place = vec3(x, y, globalTime);
+  vec3 place;
   
-  if (LIGHT_TRAVEL_TIME_DELAY > 0 && !(UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-    float centerDeltX = x - pos.x;
-    float centerDeltY = y - pos.y;
+  if (TIMELIKE_VIEW > 0) {
+    y = yNorm * scale;
+    place = vec3(x, pos.y, globalTime + y);
+  } else {
+    y = pos.y + yNorm * scale;
+    place = vec3(x, y, globalTime);
     
-    float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
-    
-    float newGlobalTimeDiff = -centerDeltDist / SPEED_OF_LIGHT;
-    //newGlobalTimeDiff += pow(2.0, centerDeltX / 2.0) - pow(2.0, -centerDeltX / 2.0);
-    
-    place.z += newGlobalTimeDiff;
-    
-    if (LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY > 0) {
-      place.xy -= -newGlobalTimeDiff * vel;
+    if (LIGHT_TRAVEL_TIME_DELAY > 0 && !(UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
+      float centerDeltX = x - pos.x;
+      float centerDeltY = y - pos.y;
+      
+      float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
+      
+      float newGlobalTimeDiff = -centerDeltDist / SPEED_OF_LIGHT;
+      //newGlobalTimeDiff += pow(2.0, centerDeltX / 2.0) - pow(2.0, -centerDeltX / 2.0);
+      
+      place.z += newGlobalTimeDiff;
+      
+      if (LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY > 0) {
+        place.xy -= -newGlobalTimeDiff * vel;
+      }
+    } else if (!(LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
+      place.xy -= pos;
+      
+      place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
+      
+      float velMagAdj = velMag / SPEED_OF_LIGHT;
+      place.xy /= SPEED_OF_LIGHT;
+      
+      if (UNIVERSE_TIME_SHIFTING > 0) {
+        place.z += velMagAdj * place.x * velRelativityScaleFactor;
+      }
+      if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+        place.x = place.x * velRelativityScaleFactor;
+      }
+      
+      place.xy *= SPEED_OF_LIGHT;
+      
+      place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
+      
+      place.xy += pos;
+    } else if ((LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
+      float centerDeltX = x - pos.x;
+      float centerDeltY = y - pos.y;
+      
+      float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
+      
+      float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
+      
+      place.xy -= pos;
+      
+      place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
+      
+      float velMagAdj = velMag / SPEED_OF_LIGHT;
+      place.xy /= SPEED_OF_LIGHT;
+      
+      if (UNIVERSE_TIME_SHIFTING > 0) {
+        place.z += velMagAdj * place.x * velRelativityScaleFactor;
+      }
+      if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+        place.x = place.x * velRelativityScaleFactor;
+      }
+      
+      if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+        place.x += velMagAdj * timeShift * velRelativityScaleFactor;
+      }
+      if (UNIVERSE_TIME_SHIFTING > 0) {
+        place.z += timeShift * velRelativityScaleFactor;
+      }
+      
+      place.xy *= SPEED_OF_LIGHT;
+      
+      place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
+      
+      place.xy += pos;
     }
-  } else if (!(LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-    place.xy -= pos;
-    
-    place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
-    
-    float velMagAdj = velMag / SPEED_OF_LIGHT;
-    place.xy /= SPEED_OF_LIGHT;
-    
-    if (UNIVERSE_TIME_SHIFTING > 0) {
-      place.z += velMagAdj * place.x * velRelativityScaleFactor;
-    }
-    if (UNIVERSE_LENGTH_CONTRACTION > 0) {
-      place.x = place.x * velRelativityScaleFactor;
-    }
-    
-    place.xy *= SPEED_OF_LIGHT;
-    
-    place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
-    
-    place.xy += pos;
-  } else if ((LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-    float centerDeltX = x - pos.x;
-    float centerDeltY = y - pos.y;
-    
-    float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
-    
-    float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
-    
-    place.xy -= pos;
-    
-    place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
-    
-    float velMagAdj = velMag / SPEED_OF_LIGHT;
-    place.xy /= SPEED_OF_LIGHT;
-    
-    if (UNIVERSE_TIME_SHIFTING > 0) {
-      place.z += velMagAdj * place.x * velRelativityScaleFactor;
-    }
-    if (UNIVERSE_LENGTH_CONTRACTION > 0) {
-      place.x = place.x * velRelativityScaleFactor;
-    }
-    
-    if (UNIVERSE_LENGTH_CONTRACTION > 0) {
-      place.x += velMagAdj * timeShift * velRelativityScaleFactor;
-    }
-    if (UNIVERSE_TIME_SHIFTING > 0) {
-      place.z += timeShift * velRelativityScaleFactor;
-    }
-    
-    place.xy *= SPEED_OF_LIGHT;
-    
-    place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
-    
-    place.xy += pos;
   }
   
   // calculate color
@@ -339,7 +347,13 @@ void main() {
   
   if (SHIP_ENABLED) {
     float shipDeltX = x - pos.x;
-    float shipDeltY = y - pos.y;
+    float shipDeltY;
+    
+    if (TIMELIKE_VIEW > 0) {
+      shipDeltY = y;
+    } else {
+      shipDeltY = y - pos.y;
+    }
     
     if (shipDeltX * shipDeltX + shipDeltY * shipDeltY < SHIP_RADIUS_SQ) {
       outColor.r = outColor.r * 0.5 + 0.5;
