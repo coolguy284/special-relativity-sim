@@ -36,6 +36,8 @@ function handleResize() {
   
   canvas.width = Math.floor(realCanvasWidth * SUBPIXEL_SCALE);
   canvas.height = Math.floor(realCanvasHeight * SUBPIXEL_SCALE);
+  
+  if (gl) glResize(glBuffers);
 }
 
 async function glInit() {
@@ -46,12 +48,22 @@ async function glInit() {
   populateShaderProgramInfo();
   
   glBuffers = initGLBuffers();
+  
+  glResize(glBuffers);
 }
 
 function render() {
-  drawGLScene(glBuffers);
+  drawGLScene();
   
   coords.innerHTML = `X: ${X.toFixed(3)}, Y: ${Y.toFixed(3)}, Scale: ${SCALE.toFixed(3)}, Time: ${TIME.toFixed(3)}<br>VelX: ${VEL_X.toFixed(17)}, VelY: ${VEL_Y.toFixed(17)}, VelMag: ${velMag.toFixed(17)}<br>Proper Time: ${PROPER_TIME.toFixed(3)}, Rapidity: ${velRapidity.toFixed(3)}, Lorenz Factor: ${velLorenzFactor.toFixed(3)}`;
+}
+
+function recalculateRelativisticVars() {
+  velMag = Math.hypot(VEL_X, VEL_Y);
+  velAng = Math.atan2(VEL_Y, VEL_X);
+  velLorenzFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT) : 1;
+  velRapidity = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.atanh(velMag) : 0;
+  velRelativityScaleFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.cosh(velRapidity) : 1;
 }
 
 async function renderLoop() {
@@ -108,11 +120,7 @@ async function renderLoop() {
           [ VEL_X, VEL_Y ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed);
         }
         
-        velMag = Math.hypot(VEL_X, VEL_Y);
-        velAng = Math.atan2(VEL_Y, VEL_X);
-        velLorenzFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT) : 1;
-        velRapidity = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.atanh(velMag) : 0;
-        velRelativityScaleFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.cosh(velRapidity) : 1;
+        recalculateRelativisticVars();
         
         X += VEL_X * timePassed;
         Y += VEL_Y * timePassed;
@@ -139,7 +147,6 @@ window.addEventListener('load', async () => {
 
 window.addEventListener('resize', async () => {
   handleResize();
-  await glInit();
   render();
 });
 
