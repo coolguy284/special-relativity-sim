@@ -134,7 +134,7 @@ vec3 getColorAtPlace(float x, float y, float time) {
     // draw circles
     
     if (EMITTER_ENABLED) {
-      float particleLengthContraction = ITEM_LENGTH_CONTRACTION > 0 ? sqrt(1.0 - PARTICLE_SPEED * PARTICLE_SPEED / SPEED_OF_LIGHT * SPEED_OF_LIGHT) : 1.0;
+      float particleLengthContraction = ITEM_LENGTH_CONTRACTION > 0 ? sqrt(1.0 - PARTICLE_SPEED * PARTICLE_SPEED / SPEED_OF_LIGHT / SPEED_OF_LIGHT) : 1.0;
       float particleTime = time - EMITTER_START_TIME;
       float particleX = -mod(-(x - EMITTER_X - EMITTER_RADIUS - particleTime * PARTICLE_SPEED), PARTICLE_SPACING) + PARTICLE_RADIUS * particleLengthContraction;
       float particleY = y - EMITTER_Y;
@@ -281,12 +281,17 @@ void main() {
     
     place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
     
+    float velMagAdj = velMag / SPEED_OF_LIGHT;
+    place.xy /= SPEED_OF_LIGHT;
+    
     if (UNIVERSE_TIME_SHIFTING > 0) {
-      place.z += velMag * place.x * velRelativityScaleFactor;
+      place.z += velMagAdj * place.x * velRelativityScaleFactor;
     }
     if (UNIVERSE_LENGTH_CONTRACTION > 0) {
       place.x = place.x * velRelativityScaleFactor;
     }
+    
+    place.xy *= SPEED_OF_LIGHT;
     
     place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
     
@@ -303,19 +308,24 @@ void main() {
     
     place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
     
+    float velMagAdj = velMag / SPEED_OF_LIGHT;
+    place.xy /= SPEED_OF_LIGHT;
+    
     if (UNIVERSE_TIME_SHIFTING > 0) {
-      place.z += velMag * place.x * velRelativityScaleFactor;
+      place.z += velMagAdj * place.x * velRelativityScaleFactor;
     }
     if (UNIVERSE_LENGTH_CONTRACTION > 0) {
       place.x = place.x * velRelativityScaleFactor;
     }
     
     if (UNIVERSE_LENGTH_CONTRACTION > 0) {
-      place.x += velMag * timeShift * velRelativityScaleFactor;
+      place.x += velMagAdj * timeShift * velRelativityScaleFactor;
     }
     if (UNIVERSE_TIME_SHIFTING > 0) {
       place.z += timeShift * velRelativityScaleFactor;
     }
+    
+    place.xy *= SPEED_OF_LIGHT;
     
     place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
     
