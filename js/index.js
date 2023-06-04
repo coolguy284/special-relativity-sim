@@ -27,6 +27,7 @@ let velMag = 0, velAng = 0;
 let velLorenzFactor = 1;
 let velRapidity = 0;
 let velRelativityScaleFactor = 1;
+let velMagAdj = 0;
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
@@ -64,6 +65,7 @@ function recalculateRelativisticVars() {
   velLorenzFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT) : 1;
   velRapidity = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.atanh(velMag / SPEED_OF_LIGHT) : 0;
   velRelativityScaleFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.cosh(velRapidity) : 1;
+  velMagAdj = velMag / SPEED_OF_LIGHT;
 }
 
 async function renderLoop() {
@@ -169,12 +171,18 @@ window.addEventListener('keydown', e => {
       velLorenzFactor = 1;
       velRapidity = 0;
       velRelativityScaleFactor = 1;
+      velMagAdj = 0;
       render();
       break;
     
     case 'KeyT':
       TIME = 0;
       PROPER_TIME = 0;
+      render();
+      break;
+    
+    case 'KeyG':
+      TIMELIKE_VIEW = !TIMELIKE_VIEW;
       render();
       break;
     

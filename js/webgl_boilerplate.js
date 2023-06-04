@@ -72,6 +72,7 @@ function populateShaderProgramInfo() {
       velAng: gl.getUniformLocation(shaderProgram, 'velAng'),
       velLorenzFactor: gl.getUniformLocation(shaderProgram, 'velLorenzFactor'),
       velRelativityScaleFactor: gl.getUniformLocation(shaderProgram, 'velRelativityScaleFactor'),
+      velMagAdj: gl.getUniformLocation(shaderProgram, 'velMagAdj'),
     }
   };
 }
@@ -138,6 +139,7 @@ function drawGLScene() {
   gl.uniform1f(shaderProgramInfo.uniformLocations.velAng, velAng);
   gl.uniform1f(shaderProgramInfo.uniformLocations.velLorenzFactor, velLorenzFactor);
   gl.uniform1f(shaderProgramInfo.uniformLocations.velRelativityScaleFactor, velRelativityScaleFactor);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.velMagAdj, velMagAdj);
   
   let offset = 0;
   let vertexCount = 4;

@@ -23,6 +23,7 @@ uniform float velMag;
 uniform float velAng;
 uniform float velLorenzFactor;
 uniform float velRelativityScaleFactor;
+uniform float velMagAdj;
 
 out vec4 outColor;
 
@@ -253,90 +254,112 @@ vec3 getColorAtPlace(float x, float y, float time) {
   }
 }
 
+vec3 getWorldPlaceFromFrameCoords(vec3 frameCenterPlace, vec2 frameVel, vec3 frameRelPlace, float lightSpeed) {
+  float velMag = sqrt(frameVel.x * frameVel.x + frameVel.y * frameVel.y);
+  float velAng = atan(frameVel.y, frameVel.x);
+  float velRapidity = atanh(velMag / lightSpeed);
+  float velRelativityScaleFactor = cosh(velRapidity);
+  
+  float velMagAdj = velMag / lightSpeed;
+  
+  frameRelPlace.xy = vec2(cos(velAng) * frameRelPlace.x + sin(velAng) * frameRelPlace.y, cos(velAng) * frameRelPlace.y - sin(velAng) * frameRelPlace.x);
+  
+  frameRelPlace.xy /= lightSpeed;
+  
+  vec3 worldPlace = vec3(0.0, frameRelPlace.y, 0.0);
+  if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+    worldPlace.x = velMagAdj * frameRelPlace.z * velRelativityScaleFactor + frameRelPlace.x * velRelativityScaleFactor;
+  } else {
+    worldPlace.x = frameRelPlace.x;
+  }
+  if (UNIVERSE_TIME_SHIFTING > 0) {
+    worldPlace.z = frameRelPlace.z * velRelativityScaleFactor + velMagAdj * frameRelPlace.x * velRelativityScaleFactor;
+  } else {
+    worldPlace.z = frameRelPlace.z;
+  }
+  
+  worldPlace.xy *= lightSpeed;
+  
+  worldPlace.xy = vec2(cos(velAng) * worldPlace.x - sin(velAng) * worldPlace.y, cos(velAng) * worldPlace.y + sin(velAng) * worldPlace.x);
+  
+  return worldPlace + frameCenterPlace;
+}
+
+vec3 getWorldPlaceFromShipFrameCoords(vec3 frameRelPlace) {
+  vec3 frameCenterPlace = vec3(pos, globalTime);
+  
+  frameRelPlace.xy = vec2(cos(velAng) * frameRelPlace.x + sin(velAng) * frameRelPlace.y, cos(velAng) * frameRelPlace.y - sin(velAng) * frameRelPlace.x);
+  
+  frameRelPlace.xy /= SPEED_OF_LIGHT;
+  
+  vec3 worldPlace = vec3(0.0, frameRelPlace.y, 0.0);
+  if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+    worldPlace.x = velMagAdj * frameRelPlace.z * velRelativityScaleFactor + frameRelPlace.x * velRelativityScaleFactor;
+  } else {
+    worldPlace.x = frameRelPlace.x;
+  }
+  if (UNIVERSE_TIME_SHIFTING > 0) {
+    worldPlace.z = frameRelPlace.z * velRelativityScaleFactor + velMagAdj * frameRelPlace.x * velRelativityScaleFactor;
+  } else {
+    worldPlace.z = frameRelPlace.z;
+  }
+  
+  worldPlace.xy *= SPEED_OF_LIGHT;
+  
+  worldPlace.xy = vec2(cos(velAng) * worldPlace.x - sin(velAng) * worldPlace.y, cos(velAng) * worldPlace.y + sin(velAng) * worldPlace.x);
+  
+  return worldPlace + frameCenterPlace;
+}
+
 void main() {
   float xNorm = gl_FragCoord.x / iResolution.x - 0.5;
   float yNorm = gl_FragCoord.y / iResolution.y - 0.5;
   
-  float x = pos.x + xNorm * (iResolution.x / iResolution.y) * scale;
-  float y;
+  float deltX = xNorm * (iResolution.x / iResolution.y) * scale;
+  float deltY = yNorm * scale;
   
   vec3 place;
   
   if (TIMELIKE_VIEW > 0) {
-    y = yNorm * scale;
-    place = vec3(x, pos.y, globalTime + y);
-  } else {
-    y = pos.y + yNorm * scale;
-    place = vec3(x, y, globalTime);
+    place = vec3(pos.x + deltX, pos.y, globalTime + deltY);
     
     if (LIGHT_TRAVEL_TIME_DELAY > 0 && !(UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-      float centerDeltX = x - pos.x;
-      float centerDeltY = y - pos.y;
-      
-      float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
-      
-      float newGlobalTimeDiff = -centerDeltDist / SPEED_OF_LIGHT;
-      //newGlobalTimeDiff += pow(2.0, centerDeltX / 2.0) - pow(2.0, -centerDeltX / 2.0);
-      
-      place.z += newGlobalTimeDiff;
-      
-      if (LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY > 0) {
-        place.xy -= -newGlobalTimeDiff * vel;
-      }
-    } else if (!(LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-      place.xy -= pos;
-      
-      place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
-      
-      float velMagAdj = velMag / SPEED_OF_LIGHT;
-      place.xy /= SPEED_OF_LIGHT;
-      
-      if (UNIVERSE_TIME_SHIFTING > 0) {
-        place.z += velMagAdj * place.x * velRelativityScaleFactor;
-      }
-      if (UNIVERSE_LENGTH_CONTRACTION > 0) {
-        place.x = place.x * velRelativityScaleFactor;
-      }
-      
-      place.xy *= SPEED_OF_LIGHT;
-      
-      place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
-      
-      place.xy += pos;
-    } else if ((LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-      float centerDeltX = x - pos.x;
-      float centerDeltY = y - pos.y;
-      
-      float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
+      float centerDeltDist = abs(deltX);
       
       float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
       
-      place.xy -= pos;
+      place.z += timeShift;
+    } else if (!(LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
+      place = getWorldPlaceFromShipFrameCoords(vec3(deltX, 0.0, deltY));
+    } else if ((LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
+      float centerDeltDist = abs(deltX);
       
-      place.xy = vec2(cos(velAng) * place.x + sin(velAng) * place.y, cos(velAng) * place.y - sin(velAng) * place.x);
+      float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
       
-      float velMagAdj = velMag / SPEED_OF_LIGHT;
-      place.xy /= SPEED_OF_LIGHT;
+      place = getWorldPlaceFromShipFrameCoords(vec3(deltX, 0.0, deltY + timeShift));
+    }
+  } else {
+    place = vec3(pos.x + deltX, pos.y + deltY, globalTime);
+    
+    if (LIGHT_TRAVEL_TIME_DELAY > 0 && !(UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
+      float centerDeltDist = sqrt(deltX * deltX + deltY * deltY);
       
-      if (UNIVERSE_TIME_SHIFTING > 0) {
-        place.z += velMagAdj * place.x * velRelativityScaleFactor;
+      float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
+      //timeShift += pow(2.0, centerDeltX / 2.0) - pow(2.0, -centerDeltX / 2.0);
+      
+      place.z += timeShift;
+      
+      if (LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY > 0) {
+        place.xy -= -timeShift * vel;
       }
-      if (UNIVERSE_LENGTH_CONTRACTION > 0) {
-        place.x = place.x * velRelativityScaleFactor;
-      }
+    } else if (!(LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
+      place = getWorldPlaceFromShipFrameCoords(vec3(deltX, deltY, 0.0));
+    } else if ((LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
+      float centerDeltDist = sqrt(deltX * deltX + deltY * deltY);
       
-      if (UNIVERSE_LENGTH_CONTRACTION > 0) {
-        place.x += velMagAdj * timeShift * velRelativityScaleFactor;
-      }
-      if (UNIVERSE_TIME_SHIFTING > 0) {
-        place.z += timeShift * velRelativityScaleFactor;
-      }
+      float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
       
-      place.xy *= SPEED_OF_LIGHT;
-      
-      place.xy = vec2(cos(velAng) * place.x - sin(velAng) * place.y, cos(velAng) * place.y + sin(velAng) * place.x);
-      
-      place.xy += pos;
+      place = getWorldPlaceFromShipFrameCoords(vec3(deltX, deltY, timeShift));
     }
   }
   
@@ -346,16 +369,7 @@ void main() {
   // draw ship
   
   if (SHIP_ENABLED) {
-    float shipDeltX = x - pos.x;
-    float shipDeltY;
-    
-    if (TIMELIKE_VIEW > 0) {
-      shipDeltY = y;
-    } else {
-      shipDeltY = y - pos.y;
-    }
-    
-    if (shipDeltX * shipDeltX + shipDeltY * shipDeltY < SHIP_RADIUS_SQ) {
+    if (deltX * deltX + deltY * deltY < SHIP_RADIUS_SQ) {
       outColor.r = outColor.r * 0.5 + 0.5;
       outColor.gb = outColor.gb * 0.5;
     }
