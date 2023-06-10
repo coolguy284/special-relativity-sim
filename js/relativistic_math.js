@@ -7,17 +7,7 @@ function nonRelativistic_velocityAddition(velX_1, velY_1, velX_2, velY_2) {
 }
 
 function relativistic_accelerationCalculation(accelX, accelY, lightSpeed) {
-  return [accelX, accelY];
-  
-  /*let accelMag = Math.hypot(accelX, accelY);
-  
-  if (accelMag == 0) {
-    return [0, 0];
-  }
-  
-  let accelScale = 1 / accelMag * Math.tanh(accelMag / lightSpeed) * lightSpeed;
-  
-  return [accelX * accelScale, accelY * accelScale];*/
+  return rapidityToVelocity(accelX, accelY, lightSpeed);
 }
 
 function velocityToRapidity(velX, velY, lightSpeed) {

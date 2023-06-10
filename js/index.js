@@ -186,6 +186,17 @@ window.addEventListener('keydown', e => {
       render();
       break;
     
+    case 'KeyV':
+      VEL_X = 0;
+      VEL_Y = 0;
+      velMag = 0;
+      velAng = 0;
+      velLorenzFactor = 1;
+      velRapidity = 0;
+      velRelativityScaleFactor = 1;
+      velMagAdj = 0;
+      break;
+    
     default:
       if (e.code in ctrlKeys) {
         ctrlKeys[e.code] = true;
