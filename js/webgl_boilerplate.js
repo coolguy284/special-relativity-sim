@@ -59,6 +59,7 @@ function populateShaderProgramInfo() {
       UNIVERSE_LENGTH_CONTRACTION: gl.getUniformLocation(shaderProgram, 'UNIVERSE_LENGTH_CONTRACTION'),
       ITEM_LENGTH_CONTRACTION: gl.getUniformLocation(shaderProgram, 'ITEM_LENGTH_CONTRACTION'),
       RINDLER_METRIC_WHEN_ACCELERATING: gl.getUniformLocation(shaderProgram, 'RINDLER_METRIC_WHEN_ACCELERATING'),
+      HIDE_RINDLER_METRIC_PAST_SINGULARITY: gl.getUniformLocation(shaderProgram, 'HIDE_RINDLER_METRIC_PAST_SINGULARITY'),
       TIMELIKE_VIEW: gl.getUniformLocation(shaderProgram, 'TIMELIKE_VIEW'),
       BLACK_BEFORE_UNIVERSE_START: gl.getUniformLocation(shaderProgram, 'BLACK_BEFORE_UNIVERSE_START'),
       BACKGROUND_PULSE: gl.getUniformLocation(shaderProgram, 'BACKGROUND_PULSE'),
@@ -73,6 +74,8 @@ function populateShaderProgramInfo() {
       velLorenzFactor: gl.getUniformLocation(shaderProgram, 'velLorenzFactor'),
       velRelativityScaleFactor: gl.getUniformLocation(shaderProgram, 'velRelativityScaleFactor'),
       velMagAdj: gl.getUniformLocation(shaderProgram, 'velMagAdj'),
+      accMag: gl.getUniformLocation(shaderProgram, 'accMag'),
+      accAng: gl.getUniformLocation(shaderProgram, 'accAng'),
     }
   };
 }
@@ -126,6 +129,7 @@ function drawGLScene() {
   gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_LENGTH_CONTRACTION, Number(UNIVERSE_LENGTH_CONTRACTION));
   gl.uniform1i(shaderProgramInfo.uniformLocations.ITEM_LENGTH_CONTRACTION, Number(ITEM_LENGTH_CONTRACTION));
   gl.uniform1i(shaderProgramInfo.uniformLocations.RINDLER_METRIC_WHEN_ACCELERATING, Number(RINDLER_METRIC_WHEN_ACCELERATING));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.HIDE_RINDLER_METRIC_PAST_SINGULARITY, Number(HIDE_RINDLER_METRIC_PAST_SINGULARITY));
   gl.uniform1i(shaderProgramInfo.uniformLocations.TIMELIKE_VIEW, Number(TIMELIKE_VIEW));
   gl.uniform1i(shaderProgramInfo.uniformLocations.BLACK_BEFORE_UNIVERSE_START, Number(BLACK_BEFORE_UNIVERSE_START));
   gl.uniform1i(shaderProgramInfo.uniformLocations.BACKGROUND_PULSE, Number(BACKGROUND_PULSE));
@@ -140,6 +144,8 @@ function drawGLScene() {
   gl.uniform1f(shaderProgramInfo.uniformLocations.velLorenzFactor, velLorenzFactor);
   gl.uniform1f(shaderProgramInfo.uniformLocations.velRelativityScaleFactor, velRelativityScaleFactor);
   gl.uniform1f(shaderProgramInfo.uniformLocations.velMagAdj, velMagAdj);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.accMag, accMag);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.accAng, accAng);
   
   let offset = 0;
   let vertexCount = 4;

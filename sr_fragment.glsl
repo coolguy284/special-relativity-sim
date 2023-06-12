@@ -10,6 +10,7 @@ uniform int UNIVERSE_TIME_SHIFTING;
 uniform int UNIVERSE_LENGTH_CONTRACTION;
 uniform int ITEM_LENGTH_CONTRACTION;
 uniform int RINDLER_METRIC_WHEN_ACCELERATING;
+uniform int HIDE_RINDLER_METRIC_PAST_SINGULARITY;
 uniform int TIMELIKE_VIEW;
 uniform int BLACK_BEFORE_UNIVERSE_START;
 uniform int BACKGROUND_PULSE;
@@ -90,6 +91,8 @@ const float WHEEL2_START_TIME = 0.0;
 const float WHEEL2_SINE_RADIUS = 3.0;
 const float WHEEL2_SINE_PERIOD = 25.0;
 
+const bool REGION_SPLICE = false;
+
 struct universeFragInfo {
   float velX;
   float velY;
@@ -106,6 +109,7 @@ universeFragInfo getColorAtPlace_new_BETA(float x, float y, float time) {
   return e;
 }
 
+// demonstration function, not used
 vec3 getWorldPlaceFromFrameCoords(vec3 frameCenterPlace, vec2 frameVel, vec3 frameRelPlace, float lightSpeed) {
   float velMag = sqrt(frameVel.x * frameVel.x + frameVel.y * frameVel.y);
   float velAng = atan(frameVel.y, frameVel.x);
@@ -163,6 +167,58 @@ vec3 getWorldPlaceFromShipFrameCoords(vec3 frameRelPlace) {
   return worldPlace + frameCenterPlace;
 }
 
+// demonstration function, not used
+vec3 getWorldPlaceFromRindlerShipFrameCoords(vec2 frameAcc, vec3 rindlerFrameRelPlace) {
+  float accMag = sqrt(frameAcc.x * frameAcc.x + frameAcc.y * frameAcc.y);
+  float accAng = atan(frameAcc.y, frameAcc.x);
+  
+  rindlerFrameRelPlace.xy = vec2(cos(accAng) * rindlerFrameRelPlace.x + sin(accAng) * rindlerFrameRelPlace.y, cos(accAng) * rindlerFrameRelPlace.y - sin(accAng) * rindlerFrameRelPlace.x);
+  
+  rindlerFrameRelPlace.x += 1.0 / accMag;
+  if (HIDE_RINDLER_METRIC_PAST_SINGULARITY > 0 && rindlerFrameRelPlace.x < 0.0) {
+    return vec3(0.0 / 0.0, 0.0 / 0.0, 0.0 / 0.0);
+  }
+  
+  vec3 frameRelPlace = vec3(0.0, rindlerFrameRelPlace.y, 0.0);
+  frameRelPlace.x = rindlerFrameRelPlace.x * cosh(accMag * rindlerFrameRelPlace.z);
+  frameRelPlace.z = rindlerFrameRelPlace.x * sinh(accMag * rindlerFrameRelPlace.z);
+  
+  frameRelPlace.x -= 1.0 / accMag;
+  
+  frameRelPlace.xy = vec2(cos(accAng) * frameRelPlace.x - sin(accAng) * frameRelPlace.y, cos(accAng) * frameRelPlace.y + sin(accAng) * frameRelPlace.x);
+  
+  return getWorldPlaceFromShipFrameCoords(frameRelPlace);
+}
+
+vec3 getWorldPlaceFromShipRindlerShipFrameCoords(vec3 rindlerFrameRelPlace) {
+  rindlerFrameRelPlace.xy = vec2(cos(accAng) * rindlerFrameRelPlace.x + sin(accAng) * rindlerFrameRelPlace.y, cos(accAng) * rindlerFrameRelPlace.y - sin(accAng) * rindlerFrameRelPlace.x);
+  
+  rindlerFrameRelPlace.x += 1.0 / accMag;
+  if (HIDE_RINDLER_METRIC_PAST_SINGULARITY > 0 && rindlerFrameRelPlace.x < 0.0) {
+    return vec3(0.0 / 0.0, 0.0 / 0.0, 0.0 / 0.0);
+  }
+  
+  vec3 frameRelPlace = vec3(0.0, rindlerFrameRelPlace.y, 0.0);
+  frameRelPlace.x = rindlerFrameRelPlace.x * cosh(accMag * rindlerFrameRelPlace.z);
+  frameRelPlace.z = rindlerFrameRelPlace.x * sinh(accMag * rindlerFrameRelPlace.z);
+  
+  if (LIGHT_TRAVEL_TIME_DELAY > 0) {
+    float centerDeltX = log(rindlerFrameRelPlace.x) / accMag - log(1.0 / accMag) / accMag;
+    float centerDeltY = rindlerFrameRelPlace.y;
+    float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
+    
+    float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
+    
+    frameRelPlace.z += timeShift;
+  }
+  
+  frameRelPlace.x -= 1.0 / accMag;
+  
+  frameRelPlace.xy = vec2(cos(accAng) * frameRelPlace.x - sin(accAng) * frameRelPlace.y, cos(accAng) * frameRelPlace.y + sin(accAng) * frameRelPlace.x);
+  
+  return getWorldPlaceFromShipFrameCoords(frameRelPlace);
+}
+
 vec3 getFramePlaceFromWorldCoords(vec3 frameCenterPlace, vec2 frameVel, vec3 worldPlace, float lightSpeed) {
   float velMag = sqrt(frameVel.x * frameVel.x + frameVel.y * frameVel.y);
   float velAng = atan(frameVel.y, frameVel.x);
@@ -201,14 +257,18 @@ float getLorenzFactor(float vel, float lightSpeed) {
 }
 
 vec3 getColorAtPlace(float x, float y, float time) {
-  const float speed = 0.9;
-  const float spliceX = 25.0;
-  float width = 10.0 / getLorenzFactor(speed, SPEED_OF_LIGHT);
-  if (x > time * speed + spliceX - width && x < time * speed + spliceX + width && y > -5.0 && y < 5.0) {
-    vec3 place = getFramePlaceFromWorldCoords(vec3(0.0, 0.0, 0.0), vec2(speed, 0.0), vec3(x - 25.0, y, time), SPEED_OF_LIGHT);
-    x = place.x;
-    y = place.y;
-    time = place.z;
+  // region splice
+  
+  if (REGION_SPLICE) {
+    const float speed = 0.9;
+    const float spliceX = 25.0;
+    float width = 10.0 / getLorenzFactor(speed, SPEED_OF_LIGHT);
+    if (x > time * speed + spliceX - width && x < time * speed + spliceX + width && y > -5.0 && y < 5.0) {
+      vec3 place = getFramePlaceFromWorldCoords(vec3(0.0, 0.0, 0.0), vec2(speed, 0.0), vec3(x - 25.0, y, time), SPEED_OF_LIGHT);
+      x = place.x;
+      y = place.y;
+      time = place.z;
+    }
   }
   
   // all black before universe start :)
@@ -378,14 +438,26 @@ void main() {
       float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
       
       place.z += timeShift;
+      
+      if (LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY > 0) {
+        place.xy -= -timeShift * vel;
+      }
     } else if (!(LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-      place = getWorldPlaceFromShipFrameCoords(vec3(deltX, 0.0, deltY));
+      if (RINDLER_METRIC_WHEN_ACCELERATING > 0 && accMag > 0.0) {
+        place = getWorldPlaceFromShipRindlerShipFrameCoords(vec3(deltX, 0.0, deltY));
+      } else {
+        place = getWorldPlaceFromShipFrameCoords(vec3(deltX, 0.0, deltY));
+      }
     } else if ((LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-      float centerDeltDist = abs(deltX);
-      
-      float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
-      
-      place = getWorldPlaceFromShipFrameCoords(vec3(deltX, 0.0, deltY + timeShift));
+      if (RINDLER_METRIC_WHEN_ACCELERATING > 0 && accMag > 0.0) {
+        place = getWorldPlaceFromShipRindlerShipFrameCoords(vec3(deltX, 0.0, deltY));
+      } else {
+        float centerDeltDist = abs(deltX);
+        
+        float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
+        
+        place = getWorldPlaceFromShipFrameCoords(vec3(deltX, 0.0, deltY + timeShift));
+      }
     }
   } else {
     place = vec3(pos.x + deltX, pos.y + deltY, globalTime);
@@ -402,13 +474,21 @@ void main() {
         place.xy -= -timeShift * vel;
       }
     } else if (!(LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-      place = getWorldPlaceFromShipFrameCoords(vec3(deltX, deltY, 0.0));
+      if (RINDLER_METRIC_WHEN_ACCELERATING > 0 && accMag > 0.0) {
+        place = getWorldPlaceFromShipRindlerShipFrameCoords(vec3(deltX, deltY, 0.0));
+      } else {
+        place = getWorldPlaceFromShipFrameCoords(vec3(deltX, deltY, 0.0));
+      }
     } else if ((LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-      float centerDeltDist = sqrt(deltX * deltX + deltY * deltY);
-      
-      float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
-      
-      place = getWorldPlaceFromShipFrameCoords(vec3(deltX, deltY, timeShift));
+      if (RINDLER_METRIC_WHEN_ACCELERATING > 0 && accMag > 0.0) {
+        place = getWorldPlaceFromShipRindlerShipFrameCoords(vec3(deltX, deltY, 0.0));
+      } else {
+        float centerDeltDist = sqrt(deltX * deltX + deltY * deltY);
+        
+        float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
+        
+        place = getWorldPlaceFromShipFrameCoords(vec3(deltX, deltY, timeShift));
+      }
     }
   }
   

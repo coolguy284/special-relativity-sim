@@ -28,6 +28,9 @@ let velLorenzFactor = 1;
 let velRapidity = 0;
 let velRelativityScaleFactor = 1;
 let velMagAdj = 0;
+let ACCEL_X, ACCEL_Y;
+let accMag = 0;
+let accAng = 0;
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
@@ -66,6 +69,8 @@ function recalculateRelativisticVars() {
   velRapidity = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.atanh(velMag / SPEED_OF_LIGHT) : 0;
   velRelativityScaleFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.cosh(velRapidity) : 1;
   velMagAdj = velMag / SPEED_OF_LIGHT;
+  accMag = Math.hypot(ACCEL_X, ACCEL_Y);
+  accAng = Math.atan2(ACCEL_Y, ACCEL_X);
 }
 
 async function renderLoop() {
@@ -85,7 +90,6 @@ async function renderLoop() {
     
     if (TIME_ADVANCING || movementLoopRunning) {
       if (TIME_ADVANCING) {
-        let ACCEL_X, ACCEL_Y;
         if (ctrls.brake) {
           let velMag = Math.hypot(VEL_X, VEL_Y);
           if (velMag > 0) {
@@ -116,11 +120,11 @@ async function renderLoop() {
         }
         
         if (SHIP_RELATIVISTIC_VELOCITY_ADDITION) {
-          [ ACCEL_X, ACCEL_Y ] = relativistic_accelerationCalculation(ACCEL_X, ACCEL_Y, SPEED_OF_LIGHT);
-          [ VEL_X, VEL_Y ] = relativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed, SPEED_OF_LIGHT);
+          let [ ACCEL_X_ADJ, ACCEL_Y_ADJ ] = relativistic_accelerationCalculation(ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed, SPEED_OF_LIGHT);
+          [ VEL_X, VEL_Y ] = relativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X_ADJ, ACCEL_Y_ADJ, SPEED_OF_LIGHT);
         } else {
-          [ ACCEL_X, ACCEL_Y ] = nonRelativistic_accelerationCalculation(ACCEL_X, ACCEL_Y);
-          [ VEL_X, VEL_Y ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed);
+          let [ ACCEL_X_ADJ, ACCEL_Y_ADJ ] = nonRelativistic_accelerationCalculation(ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed);
+          [ VEL_X, VEL_Y ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X_ADJ, ACCEL_Y_ADJ);
         }
         
         recalculateRelativisticVars();
@@ -172,6 +176,8 @@ window.addEventListener('keydown', e => {
       velRapidity = 0;
       velRelativityScaleFactor = 1;
       velMagAdj = 0;
+      accMag = 0;
+      accAng = 0;
       render();
       break;
     
@@ -195,6 +201,8 @@ window.addEventListener('keydown', e => {
       velRapidity = 0;
       velRelativityScaleFactor = 1;
       velMagAdj = 0;
+      accMag = 0;
+      accAng = 0;
       break;
     
     default:
