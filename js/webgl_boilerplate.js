@@ -59,6 +59,7 @@ function populateShaderProgramInfo() {
       UNIVERSE_LENGTH_CONTRACTION: gl.getUniformLocation(shaderProgram, 'UNIVERSE_LENGTH_CONTRACTION'),
       ITEM_LENGTH_CONTRACTION: gl.getUniformLocation(shaderProgram, 'ITEM_LENGTH_CONTRACTION'),
       RINDLER_METRIC_WHEN_ACCELERATING: gl.getUniformLocation(shaderProgram, 'RINDLER_METRIC_WHEN_ACCELERATING'),
+      RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW: gl.getUniformLocation(shaderProgram, 'RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW'),
       HIDE_RINDLER_METRIC_PAST_SINGULARITY: gl.getUniformLocation(shaderProgram, 'HIDE_RINDLER_METRIC_PAST_SINGULARITY'),
       TIMELIKE_VIEW: gl.getUniformLocation(shaderProgram, 'TIMELIKE_VIEW'),
       BLACK_BEFORE_UNIVERSE_START: gl.getUniformLocation(shaderProgram, 'BLACK_BEFORE_UNIVERSE_START'),
@@ -129,6 +130,7 @@ function drawGLScene() {
   gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_LENGTH_CONTRACTION, Number(UNIVERSE_LENGTH_CONTRACTION));
   gl.uniform1i(shaderProgramInfo.uniformLocations.ITEM_LENGTH_CONTRACTION, Number(ITEM_LENGTH_CONTRACTION));
   gl.uniform1i(shaderProgramInfo.uniformLocations.RINDLER_METRIC_WHEN_ACCELERATING, Number(RINDLER_METRIC_WHEN_ACCELERATING));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW, Number(RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW));
   gl.uniform1i(shaderProgramInfo.uniformLocations.HIDE_RINDLER_METRIC_PAST_SINGULARITY, Number(HIDE_RINDLER_METRIC_PAST_SINGULARITY));
   gl.uniform1i(shaderProgramInfo.uniformLocations.TIMELIKE_VIEW, Number(TIMELIKE_VIEW));
   gl.uniform1i(shaderProgramInfo.uniformLocations.BLACK_BEFORE_UNIVERSE_START, Number(BLACK_BEFORE_UNIVERSE_START));

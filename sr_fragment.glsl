@@ -10,6 +10,7 @@ uniform int UNIVERSE_TIME_SHIFTING;
 uniform int UNIVERSE_LENGTH_CONTRACTION;
 uniform int ITEM_LENGTH_CONTRACTION;
 uniform int RINDLER_METRIC_WHEN_ACCELERATING;
+uniform int RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW;
 uniform int HIDE_RINDLER_METRIC_PAST_SINGULARITY;
 uniform int TIMELIKE_VIEW;
 uniform int BLACK_BEFORE_UNIVERSE_START;
@@ -191,9 +192,11 @@ vec3 getWorldPlaceFromRindlerShipFrameCoords(vec2 frameAcc, vec3 rindlerFrameRel
 }
 
 vec3 getWorldPlaceFromShipRindlerShipFrameCoords(vec3 rindlerFrameRelPlace) {
+  rindlerFrameRelPlace.xyz /= SPEED_OF_LIGHT;
+  
   rindlerFrameRelPlace.xy = vec2(cos(accAng) * rindlerFrameRelPlace.x + sin(accAng) * rindlerFrameRelPlace.y, cos(accAng) * rindlerFrameRelPlace.y - sin(accAng) * rindlerFrameRelPlace.x);
   
-  rindlerFrameRelPlace.x += 1.0 / accMag;
+  rindlerFrameRelPlace.x += 1.0 / accMag * SPEED_OF_LIGHT;
   if (HIDE_RINDLER_METRIC_PAST_SINGULARITY > 0 && rindlerFrameRelPlace.x < 0.0) {
     return vec3(0.0 / 0.0, 0.0 / 0.0, 0.0 / 0.0);
   }
@@ -212,9 +215,11 @@ vec3 getWorldPlaceFromShipRindlerShipFrameCoords(vec3 rindlerFrameRelPlace) {
     frameRelPlace.z += timeShift;
   }
   
-  frameRelPlace.x -= 1.0 / accMag;
+  frameRelPlace.x -= 1.0 / accMag * SPEED_OF_LIGHT;
   
   frameRelPlace.xy = vec2(cos(accAng) * frameRelPlace.x - sin(accAng) * frameRelPlace.y, cos(accAng) * frameRelPlace.y + sin(accAng) * frameRelPlace.x);
+  
+  frameRelPlace.xy *= SPEED_OF_LIGHT;
   
   return getWorldPlaceFromShipFrameCoords(frameRelPlace);
 }
@@ -443,13 +448,13 @@ void main() {
         place.xy -= -timeShift * vel;
       }
     } else if (!(LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-      if (RINDLER_METRIC_WHEN_ACCELERATING > 0 && accMag > 0.0) {
+      if (RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW > 0 && accMag > 0.0) {
         place = getWorldPlaceFromShipRindlerShipFrameCoords(vec3(deltX, 0.0, deltY));
       } else {
         place = getWorldPlaceFromShipFrameCoords(vec3(deltX, 0.0, deltY));
       }
     } else if ((LIGHT_TRAVEL_TIME_DELAY > 0) && (UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
-      if (RINDLER_METRIC_WHEN_ACCELERATING > 0 && accMag > 0.0) {
+      if (RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW > 0 && accMag > 0.0) {
         place = getWorldPlaceFromShipRindlerShipFrameCoords(vec3(deltX, 0.0, deltY));
       } else {
         float centerDeltDist = abs(deltX);
