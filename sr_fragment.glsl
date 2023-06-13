@@ -28,6 +28,7 @@ uniform float velRelativityScaleFactor;
 uniform float velMagAdj;
 uniform float accMag;
 uniform float accAng;
+uniform float accMagAdj;
 
 out vec4 outColor;
 
@@ -173,30 +174,11 @@ vec3 getWorldPlaceFromRindlerShipFrameCoords(vec2 frameAcc, vec3 rindlerFrameRel
   float accMag = sqrt(frameAcc.x * frameAcc.x + frameAcc.y * frameAcc.y);
   float accAng = atan(frameAcc.y, frameAcc.x);
   
-  rindlerFrameRelPlace.xy = vec2(cos(accAng) * rindlerFrameRelPlace.x + sin(accAng) * rindlerFrameRelPlace.y, cos(accAng) * rindlerFrameRelPlace.y - sin(accAng) * rindlerFrameRelPlace.x);
-  
-  rindlerFrameRelPlace.x += 1.0 / accMag;
-  if (HIDE_RINDLER_METRIC_PAST_SINGULARITY > 0 && rindlerFrameRelPlace.x < 0.0) {
-    return vec3(0.0 / 0.0, 0.0 / 0.0, 0.0 / 0.0);
-  }
-  
-  vec3 frameRelPlace = vec3(0.0, rindlerFrameRelPlace.y, 0.0);
-  frameRelPlace.x = rindlerFrameRelPlace.x * cosh(accMag * rindlerFrameRelPlace.z);
-  frameRelPlace.z = rindlerFrameRelPlace.x * sinh(accMag * rindlerFrameRelPlace.z);
-  
-  frameRelPlace.x -= 1.0 / accMag;
-  
-  frameRelPlace.xy = vec2(cos(accAng) * frameRelPlace.x - sin(accAng) * frameRelPlace.y, cos(accAng) * frameRelPlace.y + sin(accAng) * frameRelPlace.x);
-  
-  return getWorldPlaceFromShipFrameCoords(frameRelPlace);
-}
-
-vec3 getWorldPlaceFromShipRindlerShipFrameCoords(vec3 rindlerFrameRelPlace) {
   rindlerFrameRelPlace.xyz /= SPEED_OF_LIGHT;
   
   rindlerFrameRelPlace.xy = vec2(cos(accAng) * rindlerFrameRelPlace.x + sin(accAng) * rindlerFrameRelPlace.y, cos(accAng) * rindlerFrameRelPlace.y - sin(accAng) * rindlerFrameRelPlace.x);
   
-  rindlerFrameRelPlace.x += 1.0 / accMag * SPEED_OF_LIGHT;
+  rindlerFrameRelPlace.x += 1.0 / accMagAdj;
   if (HIDE_RINDLER_METRIC_PAST_SINGULARITY > 0 && rindlerFrameRelPlace.x < 0.0) {
     return vec3(0.0 / 0.0, 0.0 / 0.0, 0.0 / 0.0);
   }
@@ -215,7 +197,40 @@ vec3 getWorldPlaceFromShipRindlerShipFrameCoords(vec3 rindlerFrameRelPlace) {
     frameRelPlace.z += timeShift;
   }
   
-  frameRelPlace.x -= 1.0 / accMag * SPEED_OF_LIGHT;
+  frameRelPlace.x -= 1.0 / accMagAdj;
+  
+  frameRelPlace.xy = vec2(cos(accAng) * frameRelPlace.x - sin(accAng) * frameRelPlace.y, cos(accAng) * frameRelPlace.y + sin(accAng) * frameRelPlace.x);
+  
+  frameRelPlace.xy *= SPEED_OF_LIGHT;
+  
+  return getWorldPlaceFromShipFrameCoords(frameRelPlace);
+}
+
+vec3 getWorldPlaceFromShipRindlerShipFrameCoords(vec3 rindlerFrameRelPlace) {
+  rindlerFrameRelPlace.xyz /= SPEED_OF_LIGHT;
+  
+  rindlerFrameRelPlace.xy = vec2(cos(accAng) * rindlerFrameRelPlace.x + sin(accAng) * rindlerFrameRelPlace.y, cos(accAng) * rindlerFrameRelPlace.y - sin(accAng) * rindlerFrameRelPlace.x);
+  
+  rindlerFrameRelPlace.x += 1.0 / accMagAdj;
+  if (HIDE_RINDLER_METRIC_PAST_SINGULARITY > 0 && rindlerFrameRelPlace.x < 0.0) {
+    return vec3(0.0 / 0.0, 0.0 / 0.0, 0.0 / 0.0);
+  }
+  
+  vec3 frameRelPlace = vec3(0.0, rindlerFrameRelPlace.y, 0.0);
+  frameRelPlace.x = rindlerFrameRelPlace.x * cosh(accMag * rindlerFrameRelPlace.z);
+  frameRelPlace.z = rindlerFrameRelPlace.x * sinh(accMag * rindlerFrameRelPlace.z);
+  
+  if (LIGHT_TRAVEL_TIME_DELAY > 0) {
+    float centerDeltX = log(rindlerFrameRelPlace.x) / accMag - log(1.0 / accMag) / accMag;
+    float centerDeltY = rindlerFrameRelPlace.y;
+    float centerDeltDist = sqrt(centerDeltX * centerDeltX + centerDeltY * centerDeltY);
+    
+    float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
+    
+    frameRelPlace.z += timeShift;
+  }
+  
+  frameRelPlace.x -= 1.0 / accMagAdj;
   
   frameRelPlace.xy = vec2(cos(accAng) * frameRelPlace.x - sin(accAng) * frameRelPlace.y, cos(accAng) * frameRelPlace.y + sin(accAng) * frameRelPlace.x);
   

@@ -77,6 +77,7 @@ function populateShaderProgramInfo() {
       velMagAdj: gl.getUniformLocation(shaderProgram, 'velMagAdj'),
       accMag: gl.getUniformLocation(shaderProgram, 'accMag'),
       accAng: gl.getUniformLocation(shaderProgram, 'accAng'),
+      accMagAdj: gl.getUniformLocation(shaderProgram, 'accMagAdj'),
     }
   };
 }
@@ -148,6 +149,7 @@ function drawGLScene() {
   gl.uniform1f(shaderProgramInfo.uniformLocations.velMagAdj, velMagAdj);
   gl.uniform1f(shaderProgramInfo.uniformLocations.accMag, accMag);
   gl.uniform1f(shaderProgramInfo.uniformLocations.accAng, accAng);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.accMagAdj, accMagAdj);
   
   let offset = 0;
   let vertexCount = 4;

@@ -31,6 +31,7 @@ let velMagAdj = 0;
 let ACCEL_X, ACCEL_Y;
 let accMag = 0;
 let accAng = 0;
+let accMagAdj = 0;
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
@@ -71,6 +72,19 @@ function recalculateRelativisticVars() {
   velMagAdj = velMag / SPEED_OF_LIGHT;
   accMag = Math.hypot(ACCEL_X, ACCEL_Y);
   accAng = Math.atan2(ACCEL_Y, ACCEL_X);
+  accMagAdj = accMag / SPEED_OF_LIGHT;
+}
+
+function resetRelativisticVars() {
+  velMag = 0;
+  velAng = 0;
+  velLorenzFactor = 1;
+  velRapidity = 0;
+  velRelativityScaleFactor = 1;
+  velMagAdj = 0;
+  accMag = 0;
+  accAng = 0;
+  accMagAdj = 0;
 }
 
 async function renderLoop() {
@@ -170,14 +184,7 @@ window.addEventListener('keydown', e => {
       targetScale = 10;
       VEL_X = 0;
       VEL_Y = 0;
-      velMag = 0;
-      velAng = 0;
-      velLorenzFactor = 1;
-      velRapidity = 0;
-      velRelativityScaleFactor = 1;
-      velMagAdj = 0;
-      accMag = 0;
-      accAng = 0;
+      resetRelativisticVars();
       render();
       break;
     
@@ -195,14 +202,7 @@ window.addEventListener('keydown', e => {
     case 'KeyV':
       VEL_X = 0;
       VEL_Y = 0;
-      velMag = 0;
-      velAng = 0;
-      velLorenzFactor = 1;
-      velRapidity = 0;
-      velRelativityScaleFactor = 1;
-      velMagAdj = 0;
-      accMag = 0;
-      accAng = 0;
+      resetRelativisticVars();
       break;
     
     default:
