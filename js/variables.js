@@ -17,6 +17,7 @@ let RINDLER_METRIC_WHEN_ACCELERATING = false;
 let RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW = false;
 let HIDE_RINDLER_METRIC_PAST_SINGULARITY = false;
 let TIMELIKE_VIEW = false;
+let TIMELIKE_VIEW_NORMALIZED_X_COORDINATE = false; // squish timelike view x coordinate so that light is a 45 degree diagonal
 let MOUSEDRAG_RELATIVE_TO_FRAME = true;
 
 let BACKGROUND_PULSE = true;

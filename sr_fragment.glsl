@@ -13,6 +13,7 @@ uniform int RINDLER_METRIC_WHEN_ACCELERATING;
 uniform int RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW;
 uniform int HIDE_RINDLER_METRIC_PAST_SINGULARITY;
 uniform int TIMELIKE_VIEW;
+uniform int TIMELIKE_VIEW_NORMALIZED_X_COORDINATE;
 uniform int BLACK_BEFORE_UNIVERSE_START;
 uniform int BACKGROUND_PULSE;
 uniform float SPEED_OF_LIGHT;
@@ -525,9 +526,13 @@ void main() {
   vec3 place;
   
   if (TIMELIKE_VIEW > 0) {
-    place = vec3(pos.x + deltX, pos.y, globalTime + deltY);
+    float xScalingFactor = TIMELIKE_VIEW_NORMALIZED_X_COORDINATE > 0 ? SPEED_OF_LIGHT : 1.0;
+    
+    deltX *= xScalingFactor;
     
     if (LIGHT_TRAVEL_TIME_DELAY > 0 && !(UNIVERSE_LENGTH_CONTRACTION > 0 || UNIVERSE_TIME_SHIFTING > 0)) {
+      place = vec3(pos.x + deltX, pos.y, globalTime + deltY);
+      
       float centerDeltDist = abs(deltX);
       
       float timeShift = -centerDeltDist / SPEED_OF_LIGHT;
