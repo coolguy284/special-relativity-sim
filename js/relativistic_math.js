@@ -50,3 +50,39 @@ function getLorenzFactor(velX, velY, lightSpeed) {
   
   return 1 / Math.sqrt(1 - velMag ** 2 / lightSpeed ** 2);
 }
+
+// takes in array of [x, y, t] and outputs same structure as world coordinates with ship lorenz shift calculated, but not the positional shift
+// similar to the function with the same name in shader code
+function getWorldPlaceFromShipFrameCoords(frameRelPlace) {
+  frameRelPlace = [...frameRelPlace];
+  
+  frameRelPlace = [
+    Math.cos(velAng) * frameRelPlace[0] + Math.sin(velAng) * frameRelPlace[1],
+    Math.cos(velAng) * frameRelPlace[1] - Math.sin(velAng) * frameRelPlace[0],
+    frameRelPlace[2]
+  ];
+  
+  frameRelPlace = [frameRelPlace[0] / SPEED_OF_LIGHT, frameRelPlace[1] / SPEED_OF_LIGHT, frameRelPlace[2]];
+  
+  let worldPlace = [0, frameRelPlace[1], 0];
+  if (UNIVERSE_LENGTH_CONTRACTION > 0) {
+    worldPlace[0] = velMagAdj * frameRelPlace[2] * velRelativityScaleFactor + frameRelPlace[0] * velRelativityScaleFactor;
+  } else {
+    worldPlace[0] = frameRelPlace[0];
+  }
+  if (UNIVERSE_TIME_SHIFTING > 0) {
+    worldPlace[2] = frameRelPlace[2] * velRelativityScaleFactor + velMagAdj * frameRelPlace[0] * velRelativityScaleFactor;
+  } else {
+    worldPlace[2] = frameRelPlace[2];
+  }
+  
+  worldPlace = [worldPlace[0] * SPEED_OF_LIGHT, worldPlace[1] * SPEED_OF_LIGHT, worldPlace[2]];
+  
+  worldPlace = [
+    Math.cos(velAng) * worldPlace[0] - Math.sin(velAng) * worldPlace[1],
+    Math.cos(velAng) * worldPlace[1] + Math.sin(velAng) * worldPlace[0],
+    worldPlace[2]
+  ];
+  
+  return worldPlace;
+}

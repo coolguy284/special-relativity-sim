@@ -87,6 +87,28 @@ function resetRelativisticVars() {
   accMagAdj = 0;
 }
 
+// used by mousemove event handler and movement loop in plugin file
+function shiftShipPos(shiftX, shiftY) {
+  shiftX /= realCanvasHeight / SCALE;
+  shiftY /= realCanvasHeight / SCALE;
+  
+  // use different axis for y if timelike view enabled
+  if (TIMELIKE_VIEW) {
+    X -= shiftX;
+    TIME -= shiftY;
+  } else {
+    if (MOUSEDRAG_RELATIVE_TO_FRAME) {
+      let shiftedShifts = getWorldPlaceFromShipFrameCoords([shiftX, shiftY, 0]);
+      X -= shiftedShifts[0];
+      Y -= shiftedShifts[1];
+      TIME -= shiftedShifts[2];
+    } else {
+      X -= shiftX;
+      Y -= shiftY;
+    }
+  }
+}
+
 async function renderLoop() {
   while (true) {
     let properTimePassed, timePassed;

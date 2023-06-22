@@ -35,16 +35,11 @@ async function movementLoop() {
       lastFrameTime = (timestamp - pTimestamp) / 1000;
     }
     
-    // use different axis for y if timelike view enabled
-    
-    let pseudoY = TIMELIKE_VIEW ? TIME : Y;
-    
     // movement processing
     
     if (processMovement) {
       if (!mouseDown) {
-        X -= screenVelX / realCanvasHeight * SCALE;
-        pseudoY -= screenVelY / realCanvasHeight * SCALE;
+        shiftShipPos(screenVelX, screenVelY);
         
         if (pTimestamp) {
           let newVelMag;
@@ -72,27 +67,7 @@ async function movementLoop() {
     if (processZoom && pTimestamp) {
       let scaleFactor = Math.exp(Math.log(targetScale / SCALE) * Math.min(INERTIA_ZOOM_FACTOR * lastFrameTime, 1));
       
-      let cxCursor = X + (targetScalePMouseX - realCanvasWidth / 2) / realCanvasHeight * SCALE;
-      let cyCursor = pseudoY + -(targetScalePMouseY - realCanvasHeight / 2) / realCanvasHeight * SCALE;
-      
-      let cxDiff = cxCursor - X;
-      let cyDiff = cyCursor - pseudoY;
-      
-      let cxScaleDiff = cxDiff - cxDiff * scaleFactor;
-      let cyScaleDiff = cyDiff - cyDiff * scaleFactor;
-      
-      X += cxScaleDiff;
-      pseudoY += cyScaleDiff;
-      
       SCALE *= scaleFactor;
-    }
-    
-    // use different axis for y if timelike view enabled
-    
-    if (TIMELIKE_VIEW) {
-      TIME = pseudoY;
-    } else {
-      Y = pseudoY;
     }
     
     // call next iteration of loop
@@ -145,16 +120,7 @@ window.addEventListener('mousemove', e => {
     
     screenVelMag = Math.hypot(screenVelX, screenVelY);
     
-    let pseudoY = TIMELIKE_VIEW ? TIME : Y;
-    
-    X -= screenVelX / realCanvasHeight * SCALE;
-    pseudoY -= screenVelY / realCanvasHeight * SCALE;
-    
-    if (TIMELIKE_VIEW) {
-      TIME = pseudoY;
-    } else {
-      Y = pseudoY;
-    }
+    shiftShipPos(screenVelX, screenVelY);
   }
   
   pMouseX = x;
