@@ -275,17 +275,17 @@ vec3 getFramePlaceFromWorldCoords(vec3 frameCenterPlace, vec2 frameVel, vec3 wor
   
   vec3 frameRelPlace = vec3(0.0, worldPlace.y, 0.0);
   if (UNIVERSE_TIME_SHIFTING > 0) {
-    frameRelPlace.z = (-worldPlace.x * velMag + worldPlace.z) / (1.0 - velMagAdj * velMagAdj) / velRelativityScaleFactor;
+    frameRelPlace.z = (-worldPlace.x * velMagAdj + worldPlace.z) / (1.0 - velMagAdj * velMagAdj) / velRelativityScaleFactor;
   } else {
     frameRelPlace.z = worldPlace.z;
   }
   if (UNIVERSE_LENGTH_CONTRACTION > 0) {
-    frameRelPlace.x = (-worldPlace.z * velMag + worldPlace.x) / (1.0 - velMagAdj * velMagAdj) / velRelativityScaleFactor;
+    frameRelPlace.x = (-worldPlace.z * velMagAdj + worldPlace.x) / (1.0 - velMagAdj * velMagAdj) / velRelativityScaleFactor;
   } else {
     frameRelPlace.x = worldPlace.x;
   }
   
-  frameRelPlace.xy *= SPEED_OF_LIGHT;
+  frameRelPlace.xy *= lightSpeed;
   
   frameRelPlace.xy = vec2(cos(velAng) * frameRelPlace.x - sin(velAng) * frameRelPlace.y, cos(velAng) * frameRelPlace.y + sin(velAng) * frameRelPlace.x);
   
@@ -293,7 +293,11 @@ vec3 getFramePlaceFromWorldCoords(vec3 frameCenterPlace, vec2 frameVel, vec3 wor
 }
 
 float getLorenzFactor(float vel, float lightSpeed) {
-  return 1.0 / sqrt(1.0 - vel * vel / lightSpeed * lightSpeed);
+  return 1.0 / sqrt(1.0 - vel * vel / lightSpeed / lightSpeed);
+}
+
+float getInverseLorenzFactor(float vel, float lightSpeed) {
+  return sqrt(1.0 - vel * vel / lightSpeed / lightSpeed);
 }
 
 vec3 getColorAtPlace(float x, float y, float time) {
@@ -339,7 +343,7 @@ vec3 getColorAtPlace(float x, float y, float time) {
     // draw circles
     
     if (EMITTER_ENABLED) {
-      float particleLengthContraction = ITEM_LENGTH_CONTRACTION > 0 ? sqrt(1.0 - PARTICLE_SPEED * PARTICLE_SPEED / SPEED_OF_LIGHT / SPEED_OF_LIGHT) : 1.0;
+      float particleLengthContraction = ITEM_LENGTH_CONTRACTION > 0 ? getInverseLorenzFactor(PARTICLE_SPEED, SPEED_OF_LIGHT) : 1.0;
       float particleTime = time - EMITTER_START_TIME;
       float particleX = -mod(-(x - EMITTER_X - EMITTER_RADIUS - particleTime * PARTICLE_SPEED), PARTICLE_SPACING) + PARTICLE_RADIUS * particleLengthContraction;
       float particleY = y - EMITTER_Y;
