@@ -158,7 +158,7 @@ function drawGLScene() {
   gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
 }
 
-async function glResize(buffers) {
+function glResize(buffers) {
   gl.useProgram(shaderProgram);
   
   let fieldOfView = (45 * Math.PI) / 180;
