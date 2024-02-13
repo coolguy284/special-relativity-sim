@@ -89,7 +89,13 @@ function initGLBuffers() {
   
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   
-  let positions = new Float32Array([canvas.width / canvas.height, 1.0, -canvas.width / canvas.height, 1.0, canvas.width / canvas.height, -1.0, -canvas.width / canvas.height, -1.0]);
+  let positions = new Float32Array([
+    // (x, y), make sure x coord is equal to plus or minus aspect (declared below in glResize), for screen to be fully filled
+    1.0, 1.0,
+    -1.0, 1.0,
+    1.0, -1.0,
+    -1.0, -1.0,
+  ]);
   
   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
   
@@ -162,7 +168,7 @@ function glResize(buffers) {
   gl.useProgram(shaderProgram);
   
   let fieldOfView = (45 * Math.PI) / 180;
-  let aspect = 1.7;
+  let aspect = 1.0;
   let zNear = 0.1;
   let zFar = 100.0;
   
