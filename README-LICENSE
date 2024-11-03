@@ -1,0 +1,6 @@
+Can choose to follow either MIT or Unlicense; MIT made available in case
+Unlicense does not legally apply in your jurisdiction.
+
+Note: the file "js_lib/gl-matrix-min.js" is an external library created
+by someone else. Thus, the MIT+Unlicense of this repository does not apply
+to that file, which instead uses an MIT license of a different author.
