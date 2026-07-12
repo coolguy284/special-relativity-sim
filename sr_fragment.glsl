@@ -45,6 +45,12 @@ const float BORDER_THICKNESS = 0.05;
 
 const float BACKGROUND_PULSE_INTENSITY = 0.1;
 
+const bool BUBBLE_EXISTS = true;
+const float BUBBLE_X = 0.0;
+const float BUBBLE_Y = -5.0;
+const float BUBBLE_START_TIME = 2.0;
+const float BUBBLE_GROWTH_SPEED = 0.5;
+
 const bool EMITTER_EXISTS = true;
 const bool EMITTER_ENABLED = true;
 const float EMITTER_X = -2.5;
@@ -318,6 +324,25 @@ vec3 getColorAtPlace(float x, float y, float time) {
   
   if (BLACK_BEFORE_UNIVERSE_START > 0 && time < UNIVERSE_START) {
     return vec3(0.0, 0.0, 0.0);
+  }
+  
+  // expanding bubble
+  
+  if (BUBBLE_EXISTS) {
+    vec2 bubbleDelt = vec2(
+      x - BUBBLE_X,
+      y - BUBBLE_Y
+    );
+    
+    float bubbleDistSq = bubbleDelt.x * bubbleDelt.x + bubbleDelt.y * bubbleDelt.y;
+    
+    float bubbleRadius = (time - BUBBLE_START_TIME) * BUBBLE_GROWTH_SPEED;
+    
+    float bubbleRadiusSq = bubbleRadius * bubbleRadius;
+    
+    if (bubbleRadius >= 0.0 && bubbleRadiusSq >= bubbleDistSq) {
+      return vec3(0.2, 0.7, 0.7);
+    }
   }
   
   // emitter
