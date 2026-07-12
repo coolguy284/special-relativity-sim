@@ -45,7 +45,7 @@ const float BORDER_THICKNESS = 0.05;
 
 const float BACKGROUND_PULSE_INTENSITY = 0.1;
 
-const bool BUBBLE_EXISTS = true;
+const bool BUBBLE_EXISTS = false;
 const float BUBBLE_X = 0.0;
 const float BUBBLE_Y = -5.0;
 const float BUBBLE_START_TIME = 2.0;
