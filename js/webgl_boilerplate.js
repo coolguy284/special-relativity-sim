@@ -167,31 +167,8 @@ function drawGLScene() {
 function glResize(buffers) {
   gl.useProgram(shaderProgram);
   
-  let fieldOfView = (45 * Math.PI) / 180;
-  let aspect = 1.0;
-  let zNear = 0.1;
-  let zFar = 100.0;
-  
-  let projectionMatrix = mat4.create();
-  
-  mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-  
-  let modelViewMatrix = mat4.create();
-  
-  mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -2.413]);
-  
   setPositionAttribute(buffers);
   
-  gl.uniformMatrix4fv(
-    shaderProgramInfo.uniformLocations.projectionMatrix,
-    false,
-    projectionMatrix
-  );
-  gl.uniformMatrix4fv(
-    shaderProgramInfo.uniformLocations.modelViewMatrix,
-    false,
-    modelViewMatrix
-  );
   gl.uniform2fv(shaderProgramInfo.uniformLocations.iResolution, [canvas.width, canvas.height]);
   
   gl.viewport(0, 0, canvas.width, canvas.height);
