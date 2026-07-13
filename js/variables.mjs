@@ -35,7 +35,7 @@ export function setVelY(newVelY) {
 
 export let TIMELIKE_VIEW = false;
 
-function setTimelikeView(newTimelikeView) {
+export function setTimelikeView(newTimelikeView) {
   TIMELIKE_VIEW = newTimelikeView;
 }
 
