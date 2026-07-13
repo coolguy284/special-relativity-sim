@@ -37,3 +37,9 @@ export let accAng = 0;
 function setAccAng(newAccAng) {
   accAng = newAccAng;
 }
+
+export let accMagAdj = 0;
+
+function setAccMagAdj(newAccMagAdj) {
+  accMagAdj = newAccMagAdj;
+}

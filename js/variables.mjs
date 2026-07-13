@@ -41,7 +41,7 @@ function setTimelikeView(newTimelikeView) {
 
 export const LIGHT_TRAVEL_TIME_DELAY = true;
 export const LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY = true;
-let SHIP_TIME_DIALATION = true;
+// let SHIP_TIME_DIALATION = true;
 export const UNIVERSE_TIME_SHIFTING = true;
 export const UNIVERSE_LENGTH_CONTRACTION = true;
 export const ITEM_LENGTH_CONTRACTION = true;

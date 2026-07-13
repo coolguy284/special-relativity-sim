@@ -1,6 +1,7 @@
 import {
   accAng,
   accMag,
+  accMagAdj,
   velAng,
   velMag,
   velMagAdj,

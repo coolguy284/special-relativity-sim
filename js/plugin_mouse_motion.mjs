@@ -1,3 +1,5 @@
+import { SCALE } from './variables.mjs';
+
 let ZOOM_SCALE_FACTOR = (1 / 1.5) ** (1 / 120);
 let INERTIA_SLOWDOWN = 10;
 let INERTIA_FASTSLOWDOWN_TIME_THRESHOLD = 0.8;
@@ -10,12 +12,13 @@ let PREV_MOUSE_BUFFER_LENGTH = 3;
 let PREV_MOUSE_BUFFER_TIMESPAN = 0.1 * 1000;
 
 let screenVelX, screenVelY, screenVelMag;
-let movementLoopRunning = false;
 let targetScale = SCALE, targetScalePMouseX, targetScalePMouseY;
 let mouseDown = false;
 let pMouseX, pMouseY;
 let previousMouseDrags = [];
 let timeUnclicked;
+
+export let movementLoopRunning = false;
 
 async function movementLoop() {
   if (movementLoopRunning) return;

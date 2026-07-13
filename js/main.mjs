@@ -1,4 +1,19 @@
-import { SUBPIXEL_SCALE } from './variables.mjs';
+import {
+  velLorenzFactor,
+  velMag,
+} from './globals.mjs';
+import { movementLoopRunning } from './plugin_mouse_motion.mjs';
+import {
+  PROPER_TIME,
+  SCALE,
+  SUBPIXEL_SCALE,
+  TIME,
+  TIME_ADVANCING,
+  VEL_X,
+  VEL_Y,
+  X,
+  Y,
+} from './variables.mjs';
 import {
   drawGLScene,
   getShaderProgramInfo,
@@ -34,7 +49,6 @@ Object.entries(ctrlMap).forEach(x => {
 let ctrls = { up: false, down: false, left: false, right: false, brake: false };
 let velRapidity = 0;
 let ACCEL_X, ACCEL_Y;
-let accMagAdj = 0;
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
