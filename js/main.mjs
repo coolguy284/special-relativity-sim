@@ -11,7 +11,10 @@ import {
   velLorenzFactor,
   velMag,
 } from './globals.mjs';
-import { movementLoopRunning } from './plugin_mouse_motion.mjs';
+import {
+  movementLoopRunning,
+  setTargetScale,
+} from './plugin_mouse_motion.mjs';
 import {
   getLorenzFactor,
   relativistic_accelerationCalculation,
@@ -22,6 +25,7 @@ import {
   PROPER_TIME,
   SCALE,
   setProperTime,
+  setScale,
   setTime,
   setTimeAdvancing,
   setVelX,
@@ -118,15 +122,15 @@ function recalculateRelativisticVars() {
 }
 
 function resetRelativisticVars() {
-  velMag = 0;
-  velAng = 0;
-  velLorenzFactor = 1;
+  setVelMag(0);
+  setVelAng(0);
+  setVelLorenzFactor(1);
   velRapidity = 0;
-  velRelativityScaleFactor = 1;
-  velMagAdj = 0;
-  accMag = 0;
-  accAng = 0;
-  accMagAdj = 0;
+  setVelRelativityScaleFactor(1);
+  setVelMagAdj(0);
+  setAccMag(0);
+  setAccAng(0);
+  setAccMagAdj(0);
 }
 
 // used by mousemove event handler and movement loop in plugin file

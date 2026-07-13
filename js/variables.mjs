@@ -13,7 +13,7 @@ export function setY(newY) {
   Y = newY;
 }
 
-function setScale(newScale) {
+export function setScale(newScale) {
   SCALE = newScale;
 }
 
