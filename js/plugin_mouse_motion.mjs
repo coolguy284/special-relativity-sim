@@ -9,13 +9,26 @@ let INERTIA_ZOOM_THRESHOLD = 1e-2;
 let PREV_MOUSE_BUFFER_LENGTH = 3;
 let PREV_MOUSE_BUFFER_TIMESPAN = 0.1 * 1000;
 
+let shiftShipPos;
+let getRealCanvasWidth;
+let getRealCanvasHeight;
+let getScale;
+let setScale;
+
 let screenVelX, screenVelY, screenVelMag;
-let movementLoopRunning = false;
-let targetScale = SCALE, targetScalePMouseX, targetScalePMouseY;
+let targetScalePMouseX, targetScalePMouseY;
 let mouseDown = false;
 let pMouseX, pMouseY;
 let previousMouseDrags = [];
 let timeUnclicked;
+
+export let targetScale;
+
+export function setTargetScale(newTargetScale) {
+  targetScale = newTargetScale;
+}
+
+export let movementLoopRunning = false;
 
 async function movementLoop() {
   if (movementLoopRunning) return;
@@ -28,7 +41,7 @@ async function movementLoop() {
     let processMovement, processZoom;
     processMovement = Math.abs(screenVelX) >= INERTIA_MOVE_THRESHOLD ||
       Math.abs(screenVelY) >= INERTIA_MOVE_THRESHOLD;
-    processZoom = Math.abs(Math.log(targetScale / SCALE)) >= INERTIA_ZOOM_THRESHOLD;
+    processZoom = Math.abs(Math.log(targetScale / getScale())) >= INERTIA_ZOOM_THRESHOLD;
     
     let lastFrameTime;
     if (pTimestamp) {
@@ -65,16 +78,16 @@ async function movementLoop() {
     // zoom processing
     
     if (processZoom && pTimestamp) {
-      let scaleFactor = Math.exp(Math.log(targetScale / SCALE) * Math.min(INERTIA_ZOOM_FACTOR * lastFrameTime, 1));
+      let scaleFactor = Math.exp(Math.log(targetScale / getScale()) * Math.min(INERTIA_ZOOM_FACTOR * lastFrameTime, 1));
       
-      SCALE *= scaleFactor;
+      setScale(getScale() * scaleFactor);
     }
     
     // call next iteration of loop
     
     if (Math.abs(screenVelX) < INERTIA_MOVE_THRESHOLD &&
         Math.abs(screenVelY) < INERTIA_MOVE_THRESHOLD &&
-        Math.abs(Math.log(targetScale / SCALE)) < INERTIA_ZOOM_THRESHOLD) {
+        Math.abs(Math.log(targetScale / getScale())) < INERTIA_ZOOM_THRESHOLD) {
       movementLoopRunning = false;
       pTimestamp = null;
       break;
@@ -84,6 +97,16 @@ async function movementLoop() {
     
     timestamp = await new Promise(r => window.requestAnimationFrame(r));
   }
+}
+
+export function init(newGetScale, newSetScale, newShiftShipPos, newGetRealCanvasWidth, newGetRealCanvasHeight) {
+  getScale = newGetScale;
+  setScale = newSetScale;
+  shiftShipPos = newShiftShipPos;
+  getRealCanvasWidth = newGetRealCanvasWidth;
+  getRealCanvasHeight = newGetRealCanvasHeight;
+
+  targetScale = getScale();
 }
 
 window.addEventListener('mousedown', e => {
@@ -139,8 +162,8 @@ window.addEventListener('mousemove', e => {
 window.addEventListener('wheel', e => {
   let wheelDelta = e.wheelDelta;
   
-  pMouseX = realCanvasWidth / 2;
-  pMouseY = realCanvasHeight / 2;
+  pMouseX = getRealCanvasWidth() / 2;
+  pMouseY = getRealCanvasHeight() / 2;
   
   let scaleFactor = ZOOM_SCALE_FACTOR ** wheelDelta;
   

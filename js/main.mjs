@@ -1,3 +1,61 @@
+import {
+  accMag,
+  setAccAng,
+  setAccMag,
+  setAccMagAdj,
+  setVelLorenzFactor,
+  setVelAng,
+  setVelMag,
+  setVelMagAdj,
+  setVelRelativityScaleFactor,
+  velLorenzFactor,
+  velMag,
+} from './globals.mjs';
+import {
+  init as mouseMotionInit,
+  movementLoopRunning,
+  setTargetScale,
+} from './plugin_mouse_motion.mjs';
+import {
+  getLorenzFactor,
+  getWorldPlaceFromShipFrameCoords,
+  relativistic_accelerationCalculation,
+  relativistic_velocityAddition,
+} from './relativistic_math.mjs';
+import {
+  ACCEL,
+  MOUSEDRAG_RELATIVE_TO_FRAME,
+  PROPER_TIME,
+  SCALE,
+  setProperTime,
+  setScale,
+  setTime,
+  setTimeAdvancing,
+  setTimelikeView,
+  setVelX,
+  setVelY,
+  setX,
+  setY,
+  SHIP_RELATIVISTIC_VELOCITY_ADDITION,
+  SPEED_OF_LIGHT,
+  SUBPIXEL_SCALE,
+  TIME,
+  TIME_ADVANCING,
+  TIME_RATE,
+  TIMELIKE_VIEW,
+  VEL_X,
+  VEL_Y,
+  X,
+  Y,
+} from './variables.mjs';
+import {
+  drawGLScene,
+  getShaderProgramInfo,
+  glResize,
+  initGLBuffers,
+  initShaderProgram,
+} from './webgl_boilerplate.mjs';
+
 let gl; // variable for canvas webgl context
 let shaderProgram;
 let shaderProgramInfo;
@@ -23,15 +81,8 @@ Object.entries(ctrlMap).forEach(x => {
   }
 });
 let ctrls = { up: false, down: false, left: false, right: false, brake: false };
-let velMag = 0, velAng = 0;
-let velLorenzFactor = 1;
 let velRapidity = 0;
-let velRelativityScaleFactor = 1;
-let velMagAdj = 0;
 let ACCEL_X, ACCEL_Y;
-let accMag = 0;
-let accAng = 0;
-let accMagAdj = 0;
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
@@ -42,49 +93,49 @@ function handleResize() {
   canvas.width = Math.floor(realCanvasWidth * SUBPIXEL_SCALE);
   canvas.height = Math.floor(realCanvasHeight * SUBPIXEL_SCALE);
   
-  if (gl) glResize(glBuffers);
+  if (gl) glResize(gl, shaderProgram, shaderProgramInfo, glBuffers);
 }
 
 async function glInit() {
   gl = canvas.getContext('webgl2');
   
-  shaderProgram = await initShaderProgram();
+  shaderProgram = await initShaderProgram(gl);
   
-  populateShaderProgramInfo();
+  shaderProgramInfo = getShaderProgramInfo(gl, shaderProgram);
   
-  glBuffers = initGLBuffers();
+  glBuffers = initGLBuffers(gl);
   
-  glResize(glBuffers);
+  glResize(gl, shaderProgram, shaderProgramInfo, glBuffers);
 }
 
 function render() {
-  drawGLScene();
+  drawGLScene(gl, shaderProgramInfo);
   
   coords.innerHTML = `X: ${X.toFixed(3)}, Y: ${Y.toFixed(3)}, Scale: ${SCALE.toFixed(3)}, Time: ${TIME.toFixed(3)}<br>VelX: ${VEL_X.toFixed(17)}, VelY: ${VEL_Y.toFixed(17)}, VelMag: ${velMag.toFixed(17)}<br>Proper Time: ${PROPER_TIME.toFixed(3)}, Rapidity: ${velRapidity.toFixed(3)}, Lorenz Factor: ${velLorenzFactor.toFixed(3)}`;
 }
 
 function recalculateRelativisticVars() {
-  velMag = Math.hypot(VEL_X, VEL_Y);
-  velAng = Math.atan2(VEL_Y, VEL_X);
-  velLorenzFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT) : 1;
+  setVelMag(Math.hypot(VEL_X, VEL_Y));
+  setVelAng(Math.atan2(VEL_Y, VEL_X));
+  setVelLorenzFactor(SHIP_RELATIVISTIC_VELOCITY_ADDITION ? getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT) : 1);
   velRapidity = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.atanh(velMag / SPEED_OF_LIGHT) : 0;
-  velRelativityScaleFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.cosh(velRapidity) : 1;
-  velMagAdj = velMag / SPEED_OF_LIGHT;
-  accMag = Math.hypot(ACCEL_X, ACCEL_Y);
-  accAng = Math.atan2(ACCEL_Y, ACCEL_X);
-  accMagAdj = accMag / SPEED_OF_LIGHT;
+  setVelRelativityScaleFactor(SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.cosh(velRapidity) : 1);
+  setVelMagAdj(velMag / SPEED_OF_LIGHT);
+  setAccMag(Math.hypot(ACCEL_X, ACCEL_Y));
+  setAccAng(Math.atan2(ACCEL_Y, ACCEL_X));
+  setAccMagAdj(accMag / SPEED_OF_LIGHT);
 }
 
 function resetRelativisticVars() {
-  velMag = 0;
-  velAng = 0;
-  velLorenzFactor = 1;
+  setVelMag(0);
+  setVelAng(0);
+  setVelLorenzFactor(1);
   velRapidity = 0;
-  velRelativityScaleFactor = 1;
-  velMagAdj = 0;
-  accMag = 0;
-  accAng = 0;
-  accMagAdj = 0;
+  setVelRelativityScaleFactor(1);
+  setVelMagAdj(0);
+  setAccMag(0);
+  setAccAng(0);
+  setAccMagAdj(0);
 }
 
 // used by mousemove event handler and movement loop in plugin file
@@ -94,17 +145,17 @@ function shiftShipPos(shiftX, shiftY) {
   
   // use different axis for y if timelike view enabled
   if (TIMELIKE_VIEW) {
-    X -= shiftX;
-    TIME -= shiftY;
+    setX(X - shiftX);
+    setTime(TIME - shiftY);
   } else {
     if (MOUSEDRAG_RELATIVE_TO_FRAME) {
-      let shiftedShifts = getWorldPlaceFromShipFrameCoords([shiftX, shiftY, 0]);
-      X -= shiftedShifts[0];
-      Y -= shiftedShifts[1];
-      TIME -= shiftedShifts[2];
+      const shiftedShifts = getWorldPlaceFromShipFrameCoords([shiftX, shiftY, 0]);
+      setX(X - shiftedShifts[0]);
+      setY(Y - shiftedShifts[1]);
+      setTime(TIME - shiftedShifts[2]);
     } else {
-      X -= shiftX;
-      Y -= shiftY;
+      setX(X - shiftX);
+      setY(Y - shiftY);
     }
   }
 }
@@ -116,8 +167,8 @@ async function renderLoop() {
       let currentTime = Date.now();
       properTimePassed = (currentTime - pastTime) / 1000 * TIME_RATE;
       timePassed = properTimePassed * velLorenzFactor;
-      PROPER_TIME += properTimePassed;
-      TIME += timePassed;
+      setProperTime(PROPER_TIME + properTimePassed);
+      setTime(TIME + timePassed);
       pastTime = currentTime;
     } else {
       timePassed = 0;
@@ -134,8 +185,8 @@ async function renderLoop() {
               ACCEL_Y = VEL_Y * -velMag / properTimePassed;*/
               ACCEL_X = 0;
               ACCEL_Y = 0;
-              VEL_X = 0;
-              VEL_Y = 0;
+              setVelX(0);
+              setVelY(0);
             } else {
               ACCEL_X = VEL_X / -velMag * ACCEL;
               ACCEL_Y = VEL_Y / -velMag * ACCEL;
@@ -156,17 +207,21 @@ async function renderLoop() {
         }
         
         if (SHIP_RELATIVISTIC_VELOCITY_ADDITION) {
-          let [ ACCEL_X_ADJ, ACCEL_Y_ADJ ] = relativistic_accelerationCalculation(ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed, SPEED_OF_LIGHT);
-          [ VEL_X, VEL_Y ] = relativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X_ADJ, ACCEL_Y_ADJ, SPEED_OF_LIGHT);
+          const [ ACCEL_X_ADJ, ACCEL_Y_ADJ ] = relativistic_accelerationCalculation(ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed, SPEED_OF_LIGHT);
+          const [ newVelX, newVelY ] = relativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X_ADJ, ACCEL_Y_ADJ, SPEED_OF_LIGHT);
+          setVelX(newVelX);
+          setVelY(newVelY);
         } else {
-          let [ ACCEL_X_ADJ, ACCEL_Y_ADJ ] = nonRelativistic_accelerationCalculation(ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed);
-          [ VEL_X, VEL_Y ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X_ADJ, ACCEL_Y_ADJ);
+          const [ ACCEL_X_ADJ, ACCEL_Y_ADJ ] = nonRelativistic_accelerationCalculation(ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed);
+          const [ newVelX, newVelY ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X_ADJ, ACCEL_Y_ADJ);
+          setVelX(newVelX);
+          setVelY(newVelY);
         }
         
         recalculateRelativisticVars();
         
-        X += VEL_X * timePassed;
-        Y += VEL_Y * timePassed;
+        setX(X + VEL_X * timePassed);
+        setY(Y + VEL_Y * timePassed);
       }
       
       render();
@@ -175,6 +230,14 @@ async function renderLoop() {
     await new Promise(r => requestAnimationFrame(r));
   }
 }
+
+mouseMotionInit(
+  () => SCALE,
+  newScale => setScale(newScale),
+  shiftShipPos,
+  () => realCanvasWidth,
+  () => realCanvasHeight,
+);
 
 window.addEventListener('load', async () => {
   handleResize();
@@ -196,34 +259,34 @@ window.addEventListener('resize', async () => {
 window.addEventListener('keydown', e => {
   switch (e.code) {
     case 'Space':
-      TIME_ADVANCING = !TIME_ADVANCING;
+      setTimeAdvancing(!TIME_ADVANCING);
       break;
     
     case 'KeyR':
-      X = 0;
-      Y = 0;
-      SCALE = 10;
-      targetScale = 10;
-      VEL_X = 0;
-      VEL_Y = 0;
+      setX(0);
+      setY(0);
+      setScale(10);
+      setTargetScale(10);
+      setVelX(0);
+      setVelY(0);
       resetRelativisticVars();
       render();
       break;
     
     case 'KeyT':
-      TIME = 0;
-      PROPER_TIME = 0;
+      setTime(0);
+      setProperTime(0);
       render();
       break;
     
     case 'KeyG':
-      TIMELIKE_VIEW = !TIMELIKE_VIEW;
+      setTimelikeView(!TIMELIKE_VIEW);
       render();
       break;
     
     case 'KeyV':
-      VEL_X = 0;
-      VEL_Y = 0;
+      setVelX(0);
+      setVelY(0);
       resetRelativisticVars();
       break;
     

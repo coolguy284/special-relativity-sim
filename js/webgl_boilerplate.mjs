@@ -1,3 +1,35 @@
+import {
+  accAng,
+  accMag,
+  accMagAdj,
+  velAng,
+  velMag,
+  velMagAdj,
+  velLorenzFactor,
+  velRelativityScaleFactor,
+} from './globals.mjs';
+import {
+  BACKGROUND_PULSE,
+  BLACK_BEFORE_UNIVERSE_START,
+  HIDE_RINDLER_METRIC_PAST_SINGULARITY,
+  ITEM_LENGTH_CONTRACTION,
+  LIGHT_TRAVEL_TIME_DELAY,
+  LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY,
+  RINDLER_METRIC_WHEN_ACCELERATING,
+  RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW,
+  SCALE,
+  SPEED_OF_LIGHT,
+  TIME,
+  TIMELIKE_VIEW,
+  TIMELIKE_VIEW_NORMALIZED_X_COORDINATE,
+  UNIVERSE_TIME_SHIFTING,
+  UNIVERSE_LENGTH_CONTRACTION,
+  VEL_X,
+  VEL_Y,
+  X,
+  Y,
+} from './variables.mjs';
+
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
 function loadShader(gl, type, source) {
   let shader = gl.createShader(type);
@@ -20,14 +52,36 @@ function loadShader(gl, type, source) {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-async function initShaderProgram() {
-  let vertexCode = await (await fetch('sr_vertex.glsl')).text();
-  let fragmentCode = await (await fetch('sr_fragment.glsl')).text();
+function setPositionAttribute(gl, shaderProgramInfo, buffers) {
+  let numComponents = 2;
+  let type = gl.FLOAT;
+  let normalize = false;
+  let stride = 0;
+  let offset = 0;
   
-  let vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexCode);
-  let fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragmentCode);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
   
-  shaderProgram = gl.createProgram();
+  gl.vertexAttribPointer(
+    shaderProgramInfo.attribLocations.vertexPosition,
+    numComponents,
+    type,
+    normalize,
+    stride,
+    offset
+  );
+  
+  gl.enableVertexAttribArray(shaderProgramInfo.attribLocations.vertexPosition);
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
+export async function initShaderProgram(gl) {
+  const vertexCode = await (await fetch('sr_vertex.glsl')).text();
+  const fragmentCode = await (await fetch('sr_fragment.glsl')).text();
+  
+  const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexCode);
+  const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragmentCode);
+  
+  const shaderProgram = gl.createProgram();
   gl.attachShader(shaderProgram, vertexShader);
   gl.attachShader(shaderProgram, fragmentShader);
   gl.linkProgram(shaderProgram);
@@ -42,8 +96,8 @@ async function initShaderProgram() {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-function populateShaderProgramInfo() {
-  shaderProgramInfo = {
+export function getShaderProgramInfo(gl, shaderProgram) {
+  return {
     attribLocations: {
       vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
     },
@@ -84,7 +138,7 @@ function populateShaderProgramInfo() {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-function initGLBuffers() {
+export function initGLBuffers(gl) {
   let positionBuffer = gl.createBuffer();
   
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -104,26 +158,7 @@ function initGLBuffers() {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-function setPositionAttribute(buffers) {
-  let numComponents = 2;
-  let type = gl.FLOAT;
-  let normalize = false;
-  let stride = 0;
-  let offset = 0;
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-  gl.vertexAttribPointer(
-    shaderProgramInfo.attribLocations.vertexPosition,
-    numComponents,
-    type,
-    normalize,
-    stride,
-    offset
-  );
-  gl.enableVertexAttribArray(shaderProgramInfo.attribLocations.vertexPosition);
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-function drawGLScene() {
+export function drawGLScene(gl, shaderProgramInfo) {
   gl.clearColor(0.0, 0.0, 0.0, 0.0);
   gl.clearDepth(1.0);
   gl.enable(gl.DEPTH_TEST);
@@ -163,10 +198,10 @@ function drawGLScene() {
   gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
 }
 
-function glResize(buffers) {
+export function glResize(gl, shaderProgram, shaderProgramInfo, buffers) {
   gl.useProgram(shaderProgram);
   
-  setPositionAttribute(buffers);
+  setPositionAttribute(gl, shaderProgramInfo, buffers);
   
   gl.uniform2fv(shaderProgramInfo.uniformLocations.iResolution, [canvas.width, canvas.height]);
   

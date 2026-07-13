@@ -1,13 +1,20 @@
+import {
+  velAng,
+  velMagAdj,
+  velRelativityScaleFactor,
+} from './globals.mjs';
+import {
+  SPEED_OF_LIGHT,
+  UNIVERSE_LENGTH_CONTRACTION,
+  UNIVERSE_TIME_SHIFTING,
+} from './variables.mjs';
+
 function nonRelativistic_accelerationCalculation(accelX, accelY) {
   return [accelX, accelY];
 }
 
 function nonRelativistic_velocityAddition(velX_1, velY_1, velX_2, velY_2) {
   return [velX_1 + velX_2, velY_1 + velY_2];
-}
-
-function relativistic_accelerationCalculation(accelX, accelY, lightSpeed) {
-  return rapidityToVelocity(accelX, accelY, lightSpeed);
 }
 
 function velocityToRapidity(velX, velY, lightSpeed) {
@@ -34,26 +41,30 @@ function rapidityToVelocity(rapidX, rapidY, lightSpeed) {
   return [rapidX * rapidScale, rapidY * rapidScale];
 }
 
-function relativistic_velocityAddition(velX_1, velY_1, velX_2, velY_2, lightSpeed) {
-  //return [velX_1 + velX_2, velY_1 + velY_2];
-  
-  [ velX_1, velY_1 ] = velocityToRapidity(velX_1, velY_1, lightSpeed);
-  [ velX_2, velY_2 ] = velocityToRapidity(velX_2, velY_2, lightSpeed);
-  
-  let [ resVelX, resVelY ] = [velX_1 + velX_2, velY_1 + velY_2];
-  
-  return rapidityToVelocity(resVelX, resVelY, lightSpeed);
-}
-
-function getLorenzFactor(velX, velY, lightSpeed) {
+export function getLorenzFactor(velX, velY, lightSpeed) {
   let velMag = Math.hypot(velX, velY);
   
   return 1 / Math.sqrt(1 - velMag ** 2 / lightSpeed ** 2);
 }
 
+export function relativistic_accelerationCalculation(accelX, accelY, lightSpeed) {
+  return rapidityToVelocity(accelX, accelY, lightSpeed);
+}
+
+export function relativistic_velocityAddition(velX_1, velY_1, velX_2, velY_2, lightSpeed) {
+  //return [velX_1 + velX_2, velY_1 + velY_2];
+  
+  [ velX_1, velY_1 ] = velocityToRapidity(velX_1, velY_1, lightSpeed);
+  [ velX_2, velY_2 ] = velocityToRapidity(velX_2, velY_2, lightSpeed);
+  
+  const [ resVelX, resVelY ] = [velX_1 + velX_2, velY_1 + velY_2];
+  
+  return rapidityToVelocity(resVelX, resVelY, lightSpeed);
+}
+
 // takes in array of [x, y, t] and outputs same structure as world coordinates with ship lorenz shift calculated, but not the positional shift
 // similar to the function with the same name in shader code
-function getWorldPlaceFromShipFrameCoords(frameRelPlace) {
+export function getWorldPlaceFromShipFrameCoords(frameRelPlace) {
   frameRelPlace = [...frameRelPlace];
   
   frameRelPlace = [
