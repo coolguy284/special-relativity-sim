@@ -143,8 +143,8 @@ async function renderLoop() {
               ACCEL_Y = VEL_Y * -velMag / properTimePassed;*/
               ACCEL_X = 0;
               ACCEL_Y = 0;
-              VEL_X = 0;
-              VEL_Y = 0;
+              setVelX(0);
+              setVelY(0);
             } else {
               ACCEL_X = VEL_X / -velMag * ACCEL;
               ACCEL_Y = VEL_Y / -velMag * ACCEL;
@@ -205,34 +205,34 @@ window.addEventListener('resize', async () => {
 window.addEventListener('keydown', e => {
   switch (e.code) {
     case 'Space':
-      TIME_ADVANCING = !TIME_ADVANCING;
+      setTimeAdvancing(!TIME_ADVANCING);
       break;
     
     case 'KeyR':
-      X = 0;
-      Y = 0;
-      SCALE = 10;
-      targetScale = 10;
-      VEL_X = 0;
-      VEL_Y = 0;
+      setX(0);
+      setY(0);
+      setScale(10);
+      setTargetScale(10);
+      setVelX(0);
+      setVelY(0);
       resetRelativisticVars();
       render();
       break;
     
     case 'KeyT':
-      TIME = 0;
-      PROPER_TIME = 0;
+      setTime(0);
+      setProperTime(0);
       render();
       break;
     
     case 'KeyG':
-      TIMELIKE_VIEW = !TIMELIKE_VIEW;
+      setTimelikeView(!TIMELIKE_VIEW);
       render();
       break;
     
     case 'KeyV':
-      VEL_X = 0;
-      VEL_Y = 0;
+      setVelX(0);
+      setVelY(0);
       resetRelativisticVars();
       break;
     

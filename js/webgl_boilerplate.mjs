@@ -1,3 +1,19 @@
+import {
+  BACKGROUND_PULSE,
+  BLACK_BEFORE_UNIVERSE_START,
+  HIDE_RINDLER_METRIC_PAST_SINGULARITY,
+  ITEM_LENGTH_CONTRACTION,
+  LIGHT_TRAVEL_TIME_DELAY,
+  LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY,
+  RINDLER_METRIC_WHEN_ACCELERATING,
+  RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW,
+  SPEED_OF_LIGHT,
+  TIMELIKE_VIEW,
+  TIMELIKE_VIEW_NORMALIZED_X_COORDINATE,
+  UNIVERSE_TIME_SHIFTING,
+  UNIVERSE_LENGTH_CONTRACTION,
+} from './variables.mjs';
+
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
 function loadShader(gl, type, source) {
   let shader = gl.createShader(type);
@@ -17,6 +33,28 @@ function loadShader(gl, type, source) {
   }
   
   return shader;
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
+function setPositionAttribute(gl, shaderProgramInfo, buffers) {
+  let numComponents = 2;
+  let type = gl.FLOAT;
+  let normalize = false;
+  let stride = 0;
+  let offset = 0;
+  
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+  
+  gl.vertexAttribPointer(
+    shaderProgramInfo.attribLocations.vertexPosition,
+    numComponents,
+    type,
+    normalize,
+    stride,
+    offset
+  );
+  
+  gl.enableVertexAttribArray(shaderProgramInfo.attribLocations.vertexPosition);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
@@ -101,28 +139,6 @@ export function initGLBuffers(gl) {
   return {
     position: positionBuffer,
   };
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-function setPositionAttribute(gl, shaderProgramInfo, buffers) {
-  let numComponents = 2;
-  let type = gl.FLOAT;
-  let normalize = false;
-  let stride = 0;
-  let offset = 0;
-  
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-  
-  gl.vertexAttribPointer(
-    shaderProgramInfo.attribLocations.vertexPosition,
-    numComponents,
-    type,
-    normalize,
-    stride,
-    offset
-  );
-  
-  gl.enableVertexAttribArray(shaderProgramInfo.attribLocations.vertexPosition);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
