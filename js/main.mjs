@@ -32,14 +32,8 @@ Object.entries(ctrlMap).forEach(x => {
   }
 });
 let ctrls = { up: false, down: false, left: false, right: false, brake: false };
-let velMag = 0, velAng = 0;
-let velLorenzFactor = 1;
 let velRapidity = 0;
-let velRelativityScaleFactor = 1;
-let velMagAdj = 0;
 let ACCEL_X, ACCEL_Y;
-let accMag = 0;
-let accAng = 0;
 let accMagAdj = 0;
 
 function handleResize() {

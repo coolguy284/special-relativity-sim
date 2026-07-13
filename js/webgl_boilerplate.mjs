@@ -1,4 +1,13 @@
 import {
+  accAng,
+  accMag,
+  velAng,
+  velMag,
+  velMagAdj,
+  velLorenzFactor,
+  velRelativityScaleFactor,
+} from './globals.mjs';
+import {
   BACKGROUND_PULSE,
   BLACK_BEFORE_UNIVERSE_START,
   HIDE_RINDLER_METRIC_PAST_SINGULARITY,
@@ -7,11 +16,17 @@ import {
   LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY,
   RINDLER_METRIC_WHEN_ACCELERATING,
   RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW,
+  SCALE,
   SPEED_OF_LIGHT,
+  TIME,
   TIMELIKE_VIEW,
   TIMELIKE_VIEW_NORMALIZED_X_COORDINATE,
   UNIVERSE_TIME_SHIFTING,
   UNIVERSE_LENGTH_CONTRACTION,
+  VEL_X,
+  VEL_Y,
+  X,
+  Y,
 } from './variables.mjs';
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
