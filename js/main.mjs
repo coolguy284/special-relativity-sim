@@ -1,3 +1,5 @@
+import {} from './variables.mjs';
+
 let gl; // variable for canvas webgl context
 let shaderProgram;
 let shaderProgramInfo;
