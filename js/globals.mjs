@@ -1,6 +1,6 @@
 export let velMag = 0, velAng = 0;
 
-function setVelMag(newVelMag) {
+export function setVelMag(newVelMag) {
   velMag = newVelMag;
 }
 

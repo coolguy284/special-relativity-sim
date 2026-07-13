@@ -1,12 +1,24 @@
 import {
+  setVelMag,
   velLorenzFactor,
   velMag,
 } from './globals.mjs';
 import { movementLoopRunning } from './plugin_mouse_motion.mjs';
 import {
+  relativistic_accelerationCalculation,
+  relativistic_velocityAddition,
+} from './relativistic_math.mjs';
+import {
+  ACCEL,
   PROPER_TIME,
   SCALE,
+  setProperTime,
+  setTime,
   setTimeAdvancing,
+  setVelX,
+  setVelY,
+  SHIP_RELATIVISTIC_VELOCITY_ADDITION,
+  SPEED_OF_LIGHT,
   SUBPIXEL_SCALE,
   TIME,
   TIME_ADVANCING,
@@ -83,7 +95,7 @@ function render() {
 }
 
 function recalculateRelativisticVars() {
-  velMag = Math.hypot(VEL_X, VEL_Y);
+  setVelMag(Math.hypot(VEL_X, VEL_Y));
   velAng = Math.atan2(VEL_Y, VEL_X);
   velLorenzFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT) : 1;
   velRapidity = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.atanh(velMag / SPEED_OF_LIGHT) : 0;
@@ -135,8 +147,8 @@ async function renderLoop() {
       let currentTime = Date.now();
       properTimePassed = (currentTime - pastTime) / 1000 * TIME_RATE;
       timePassed = properTimePassed * velLorenzFactor;
-      PROPER_TIME += properTimePassed;
-      TIME += timePassed;
+      setProperTime(PROPER_TIME + properTimePassed);
+      setTime(TIME + timePassed);
       pastTime = currentTime;
     } else {
       timePassed = 0;
@@ -175,11 +187,15 @@ async function renderLoop() {
         }
         
         if (SHIP_RELATIVISTIC_VELOCITY_ADDITION) {
-          let [ ACCEL_X_ADJ, ACCEL_Y_ADJ ] = relativistic_accelerationCalculation(ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed, SPEED_OF_LIGHT);
-          [ VEL_X, VEL_Y ] = relativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X_ADJ, ACCEL_Y_ADJ, SPEED_OF_LIGHT);
+          const [ ACCEL_X_ADJ, ACCEL_Y_ADJ ] = relativistic_accelerationCalculation(ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed, SPEED_OF_LIGHT);
+          const [ newVelX, newVelY ] = relativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X_ADJ, ACCEL_Y_ADJ, SPEED_OF_LIGHT);
+          setVelX(newVelX);
+          setVelY(newVelY);
         } else {
-          let [ ACCEL_X_ADJ, ACCEL_Y_ADJ ] = nonRelativistic_accelerationCalculation(ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed);
-          [ VEL_X, VEL_Y ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X_ADJ, ACCEL_Y_ADJ);
+          const [ ACCEL_X_ADJ, ACCEL_Y_ADJ ] = nonRelativistic_accelerationCalculation(ACCEL_X * properTimePassed, ACCEL_Y * properTimePassed);
+          const [ newVelX, newVelY ] = nonRelativistic_velocityAddition(VEL_X, VEL_Y, ACCEL_X_ADJ, ACCEL_Y_ADJ);
+          setVelX(newVelX);
+          setVelY(newVelY);
         }
         
         recalculateRelativisticVars();

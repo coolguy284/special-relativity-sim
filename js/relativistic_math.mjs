@@ -6,10 +6,6 @@ function nonRelativistic_velocityAddition(velX_1, velY_1, velX_2, velY_2) {
   return [velX_1 + velX_2, velY_1 + velY_2];
 }
 
-function relativistic_accelerationCalculation(accelX, accelY, lightSpeed) {
-  return rapidityToVelocity(accelX, accelY, lightSpeed);
-}
-
 function velocityToRapidity(velX, velY, lightSpeed) {
   let velMag = Math.hypot(velX, velY);
   
@@ -32,17 +28,6 @@ function rapidityToVelocity(rapidX, rapidY, lightSpeed) {
   let rapidScale = 1 / rapidMag * Math.tanh(rapidMag / lightSpeed) * lightSpeed;
   
   return [rapidX * rapidScale, rapidY * rapidScale];
-}
-
-function relativistic_velocityAddition(velX_1, velY_1, velX_2, velY_2, lightSpeed) {
-  //return [velX_1 + velX_2, velY_1 + velY_2];
-  
-  [ velX_1, velY_1 ] = velocityToRapidity(velX_1, velY_1, lightSpeed);
-  [ velX_2, velY_2 ] = velocityToRapidity(velX_2, velY_2, lightSpeed);
-  
-  let [ resVelX, resVelY ] = [velX_1 + velX_2, velY_1 + velY_2];
-  
-  return rapidityToVelocity(resVelX, resVelY, lightSpeed);
 }
 
 function getLorenzFactor(velX, velY, lightSpeed) {
@@ -85,4 +70,19 @@ function getWorldPlaceFromShipFrameCoords(frameRelPlace) {
   ];
   
   return worldPlace;
+}
+
+export function relativistic_accelerationCalculation(accelX, accelY, lightSpeed) {
+  return rapidityToVelocity(accelX, accelY, lightSpeed);
+}
+
+export function relativistic_velocityAddition(velX_1, velY_1, velX_2, velY_2, lightSpeed) {
+  //return [velX_1 + velX_2, velY_1 + velY_2];
+  
+  [ velX_1, velY_1 ] = velocityToRapidity(velX_1, velY_1, lightSpeed);
+  [ velX_2, velY_2 ] = velocityToRapidity(velX_2, velY_2, lightSpeed);
+  
+  const [ resVelX, resVelY ] = [velX_1 + velX_2, velY_1 + velY_2];
+  
+  return rapidityToVelocity(resVelX, resVelY, lightSpeed);
 }
