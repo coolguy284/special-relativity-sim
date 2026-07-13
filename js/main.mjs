@@ -18,6 +18,7 @@ import {
 } from './plugin_mouse_motion.mjs';
 import {
   getLorenzFactor,
+  getWorldPlaceFromShipFrameCoords,
   relativistic_accelerationCalculation,
   relativistic_velocityAddition,
 } from './relativistic_math.mjs';
@@ -144,17 +145,17 @@ function shiftShipPos(shiftX, shiftY) {
   
   // use different axis for y if timelike view enabled
   if (TIMELIKE_VIEW) {
-    X -= shiftX;
-    TIME -= shiftY;
+    setX(X - shiftX);
+    setTime(TIME - shiftY);
   } else {
     if (MOUSEDRAG_RELATIVE_TO_FRAME) {
-      let shiftedShifts = getWorldPlaceFromShipFrameCoords([shiftX, shiftY, 0]);
-      X -= shiftedShifts[0];
-      Y -= shiftedShifts[1];
-      TIME -= shiftedShifts[2];
+      const shiftedShifts = getWorldPlaceFromShipFrameCoords([shiftX, shiftY, 0]);
+      setX(X - shiftedShifts[0]);
+      setY(Y - shiftedShifts[1]);
+      setTime(TIME - shiftedShifts[2]);
     } else {
-      X -= shiftX;
-      Y -= shiftY;
+      setX(X - shiftX);
+      setY(Y - shiftY);
     }
   }
 }
