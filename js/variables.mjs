@@ -5,11 +5,11 @@ export let X = 0,
   PROPER_TIME = 0;
 export let VEL_X = 0, VEL_Y = 0;
 
-function setX(newX) {
+export function setX(newX) {
   X = newX;
 }
 
-function setY(newY) {
+export function setY(newY) {
   Y = newY;
 }
 
@@ -59,7 +59,7 @@ export const SPEED_OF_LIGHT = 1;
 export const ACCEL = 1;
 export const TIME_RATE = 1;
 
-export let TIME_ADVANCING = true;//false; TODO undo
+export let TIME_ADVANCING = false;
 
 export function setTimeAdvancing(newTimeAdvancing) {
   TIME_ADVANCING = newTimeAdvancing;

@@ -26,6 +26,8 @@ import {
   setTimeAdvancing,
   setVelX,
   setVelY,
+  setX,
+  setY,
   SHIP_RELATIVISTIC_VELOCITY_ADDITION,
   SPEED_OF_LIGHT,
   SUBPIXEL_SCALE,
@@ -209,8 +211,8 @@ async function renderLoop() {
         
         recalculateRelativisticVars();
         
-        X += VEL_X * timePassed;
-        Y += VEL_Y * timePassed;
+        setX(X + VEL_X * timePassed);
+        setY(Y + VEL_Y * timePassed);
       }
       
       render();
