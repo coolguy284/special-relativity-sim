@@ -27,4 +27,4 @@ let ACCEL = 1;
 let TIME_RATE = 1;
 let TIME_ADVANCING = false;
 
-let SUBPIXEL_SCALE = 2;
+export const SUBPIXEL_SCALE = 2;

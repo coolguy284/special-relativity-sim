@@ -1,4 +1,5 @@
-import {} from './variables.mjs';
+import { SUBPIXEL_SCALE } from './variables.mjs';
+import { initShaderProgram } from './webgl_boilerplate.mjs';
 
 let gl; // variable for canvas webgl context
 let shaderProgram;
@@ -50,7 +51,7 @@ function handleResize() {
 async function glInit() {
   gl = canvas.getContext('webgl2');
   
-  shaderProgram = await initShaderProgram();
+  shaderProgram = await initShaderProgram(gl);
   
   populateShaderProgramInfo();
   

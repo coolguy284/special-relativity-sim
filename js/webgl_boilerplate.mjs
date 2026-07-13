@@ -20,14 +20,14 @@ function loadShader(gl, type, source) {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-async function initShaderProgram() {
-  let vertexCode = await (await fetch('sr_vertex.glsl')).text();
-  let fragmentCode = await (await fetch('sr_fragment.glsl')).text();
+export async function initShaderProgram(gl) {
+  const vertexCode = await (await fetch('sr_vertex.glsl')).text();
+  const fragmentCode = await (await fetch('sr_fragment.glsl')).text();
   
-  let vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexCode);
-  let fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragmentCode);
+  const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexCode);
+  const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragmentCode);
   
-  shaderProgram = gl.createProgram();
+  const shaderProgram = gl.createProgram();
   gl.attachShader(shaderProgram, vertexShader);
   gl.attachShader(shaderProgram, fragmentShader);
   gl.linkProgram(shaderProgram);
