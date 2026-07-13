@@ -12,9 +12,8 @@ import {
   velMag,
 } from './globals.mjs';
 import {
+  init as mouseMotionInit,
   movementLoopRunning,
-  setShiftShipPos,
-  setTargetScale,
 } from './plugin_mouse_motion.mjs';
 import {
   getLorenzFactor,
@@ -231,7 +230,13 @@ async function renderLoop() {
   }
 }
 
-setShiftShipPos(shiftShipPos);
+mouseMotionInit(
+  () => SCALE,
+  newScale => setScale(newScale),
+  shiftShipPos,
+  () => realCanvasWidth,
+  () => realCanvasHeight,
+);
 
 window.addEventListener('load', async () => {
   handleResize();
