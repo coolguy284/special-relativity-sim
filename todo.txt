@@ -1,4 +1,6 @@
-fix borders around screen visible due to improper vertex positioning
+low prio:
+drawglscene split var setting into 2 funcs, an initial setting and a every frame setting
+replace some uniform ints with bools
 
 add stage wraparound at +- 500
 switch to struct wavelength return, and color processing

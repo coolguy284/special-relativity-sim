@@ -14,6 +14,7 @@ import {
 import {
   init as mouseMotionInit,
   movementLoopRunning,
+  setTargetScale,
 } from './plugin_mouse_motion.mjs';
 import {
   getLorenzFactor,
