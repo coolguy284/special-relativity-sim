@@ -42,8 +42,8 @@ export async function initShaderProgram(gl) {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-function populateShaderProgramInfo() {
-  shaderProgramInfo = {
+export function getShaderProgramInfo(gl, shaderProgram) {
+  return {
     attribLocations: {
       vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
     },
@@ -84,7 +84,7 @@ function populateShaderProgramInfo() {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-function initGLBuffers() {
+export function initGLBuffers(gl) {
   let positionBuffer = gl.createBuffer();
   
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -104,13 +104,15 @@ function initGLBuffers() {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-function setPositionAttribute(buffers) {
+function setPositionAttribute(gl, shaderProgramInfo, buffers) {
   let numComponents = 2;
   let type = gl.FLOAT;
   let normalize = false;
   let stride = 0;
   let offset = 0;
+  
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+  
   gl.vertexAttribPointer(
     shaderProgramInfo.attribLocations.vertexPosition,
     numComponents,
@@ -119,11 +121,12 @@ function setPositionAttribute(buffers) {
     stride,
     offset
   );
+  
   gl.enableVertexAttribArray(shaderProgramInfo.attribLocations.vertexPosition);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-function drawGLScene() {
+export function drawGLScene(gl, shaderProgramInfo) {
   gl.clearColor(0.0, 0.0, 0.0, 0.0);
   gl.clearDepth(1.0);
   gl.enable(gl.DEPTH_TEST);
@@ -163,10 +166,10 @@ function drawGLScene() {
   gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
 }
 
-function glResize(buffers) {
+export function glResize(gl, shaderProgram, shaderProgramInfo, buffers) {
   gl.useProgram(shaderProgram);
   
-  setPositionAttribute(buffers);
+  setPositionAttribute(gl, shaderProgramInfo, buffers);
   
   gl.uniform2fv(shaderProgramInfo.uniformLocations.iResolution, [canvas.width, canvas.height]);
   

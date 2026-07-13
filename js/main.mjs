@@ -1,5 +1,11 @@
 import { SUBPIXEL_SCALE } from './variables.mjs';
-import { initShaderProgram } from './webgl_boilerplate.mjs';
+import {
+  drawGLScene,
+  getShaderProgramInfo,
+  glResize,
+  initGLBuffers,
+  initShaderProgram,
+} from './webgl_boilerplate.mjs';
 
 let gl; // variable for canvas webgl context
 let shaderProgram;
@@ -45,7 +51,7 @@ function handleResize() {
   canvas.width = Math.floor(realCanvasWidth * SUBPIXEL_SCALE);
   canvas.height = Math.floor(realCanvasHeight * SUBPIXEL_SCALE);
   
-  if (gl) glResize(glBuffers);
+  if (gl) glResize(gl, shaderProgram, shaderProgramInfo, glBuffers);
 }
 
 async function glInit() {
@@ -53,15 +59,15 @@ async function glInit() {
   
   shaderProgram = await initShaderProgram(gl);
   
-  populateShaderProgramInfo();
+  shaderProgramInfo = getShaderProgramInfo(gl, shaderProgram);
   
-  glBuffers = initGLBuffers();
+  glBuffers = initGLBuffers(gl);
   
-  glResize(glBuffers);
+  glResize(gl, shaderProgram, shaderProgramInfo, glBuffers);
 }
 
 function render() {
-  drawGLScene();
+  drawGLScene(gl, shaderProgramInfo);
   
   coords.innerHTML = `X: ${X.toFixed(3)}, Y: ${Y.toFixed(3)}, Scale: ${SCALE.toFixed(3)}, Time: ${TIME.toFixed(3)}<br>VelX: ${VEL_X.toFixed(17)}, VelY: ${VEL_Y.toFixed(17)}, VelMag: ${velMag.toFixed(17)}<br>Proper Time: ${PROPER_TIME.toFixed(3)}, Rapidity: ${velRapidity.toFixed(3)}, Lorenz Factor: ${velLorenzFactor.toFixed(3)}`;
 }
