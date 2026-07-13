@@ -11,6 +11,8 @@ let INERTIA_ZOOM_THRESHOLD = 1e-2;
 let PREV_MOUSE_BUFFER_LENGTH = 3;
 let PREV_MOUSE_BUFFER_TIMESPAN = 0.1 * 1000;
 
+let shiftShipPos;
+
 let screenVelX, screenVelY, screenVelMag;
 let targetScalePMouseX, targetScalePMouseY;
 let mouseDown = false;
@@ -93,6 +95,10 @@ async function movementLoop() {
     
     timestamp = await new Promise(r => window.requestAnimationFrame(r));
   }
+}
+
+export function setShiftShipPos(newShiftShipPos) {
+  shiftShipPos = newShiftShipPos;
 }
 
 window.addEventListener('mousedown', e => {

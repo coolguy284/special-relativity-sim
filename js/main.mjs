@@ -13,6 +13,7 @@ import {
 } from './globals.mjs';
 import {
   movementLoopRunning,
+  setShiftShipPos,
   setTargetScale,
 } from './plugin_mouse_motion.mjs';
 import {
@@ -22,6 +23,7 @@ import {
 } from './relativistic_math.mjs';
 import {
   ACCEL,
+  MOUSEDRAG_RELATIVE_TO_FRAME,
   PROPER_TIME,
   SCALE,
   setProperTime,
@@ -227,6 +229,8 @@ async function renderLoop() {
     await new Promise(r => requestAnimationFrame(r));
   }
 }
+
+setShiftShipPos(shiftShipPos);
 
 window.addEventListener('load', async () => {
   handleResize();

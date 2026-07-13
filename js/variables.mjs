@@ -51,7 +51,7 @@ export const RINDLER_METRIC_WHEN_ACCELERATING = false;
 export const RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW = false;
 export const HIDE_RINDLER_METRIC_PAST_SINGULARITY = false;
 export const TIMELIKE_VIEW_NORMALIZED_X_COORDINATE = false; // squish timelike view x coordinate so that light is a 45 degree diagonal
-let MOUSEDRAG_RELATIVE_TO_FRAME = true;
+export const MOUSEDRAG_RELATIVE_TO_FRAME = true;
 
 export const BACKGROUND_PULSE = true;
 export const SPEED_OF_LIGHT = 1;
