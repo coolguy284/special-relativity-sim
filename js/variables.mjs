@@ -59,7 +59,7 @@ export const SPEED_OF_LIGHT = 1;
 export const ACCEL = 1;
 export const TIME_RATE = 1;
 
-export let TIME_ADVANCING = false;
+export let TIME_ADVANCING = true;//false; TODO undo
 
 export function setTimeAdvancing(newTimeAdvancing) {
   TIME_ADVANCING = newTimeAdvancing;

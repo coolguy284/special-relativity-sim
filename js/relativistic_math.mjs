@@ -30,12 +30,6 @@ function rapidityToVelocity(rapidX, rapidY, lightSpeed) {
   return [rapidX * rapidScale, rapidY * rapidScale];
 }
 
-function getLorenzFactor(velX, velY, lightSpeed) {
-  let velMag = Math.hypot(velX, velY);
-  
-  return 1 / Math.sqrt(1 - velMag ** 2 / lightSpeed ** 2);
-}
-
 // takes in array of [x, y, t] and outputs same structure as world coordinates with ship lorenz shift calculated, but not the positional shift
 // similar to the function with the same name in shader code
 function getWorldPlaceFromShipFrameCoords(frameRelPlace) {
@@ -70,6 +64,12 @@ function getWorldPlaceFromShipFrameCoords(frameRelPlace) {
   ];
   
   return worldPlace;
+}
+
+export function getLorenzFactor(velX, velY, lightSpeed) {
+  let velMag = Math.hypot(velX, velY);
+  
+  return 1 / Math.sqrt(1 - velMag ** 2 / lightSpeed ** 2);
 }
 
 export function relativistic_accelerationCalculation(accelX, accelY, lightSpeed) {

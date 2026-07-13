@@ -1,10 +1,19 @@
 import {
+  accMag,
+  setAccAng,
+  setAccMag,
+  setAccMagAdj,
+  setVelLorenzFactor,
+  setVelAng,
   setVelMag,
+  setVelMagAdj,
+  setVelRelativityScaleFactor,
   velLorenzFactor,
   velMag,
 } from './globals.mjs';
 import { movementLoopRunning } from './plugin_mouse_motion.mjs';
 import {
+  getLorenzFactor,
   relativistic_accelerationCalculation,
   relativistic_velocityAddition,
 } from './relativistic_math.mjs';
@@ -96,14 +105,14 @@ function render() {
 
 function recalculateRelativisticVars() {
   setVelMag(Math.hypot(VEL_X, VEL_Y));
-  velAng = Math.atan2(VEL_Y, VEL_X);
-  velLorenzFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT) : 1;
+  setVelAng(Math.atan2(VEL_Y, VEL_X));
+  setVelLorenzFactor(SHIP_RELATIVISTIC_VELOCITY_ADDITION ? getLorenzFactor(VEL_X, VEL_Y, SPEED_OF_LIGHT) : 1);
   velRapidity = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.atanh(velMag / SPEED_OF_LIGHT) : 0;
-  velRelativityScaleFactor = SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.cosh(velRapidity) : 1;
-  velMagAdj = velMag / SPEED_OF_LIGHT;
-  accMag = Math.hypot(ACCEL_X, ACCEL_Y);
-  accAng = Math.atan2(ACCEL_Y, ACCEL_X);
-  accMagAdj = accMag / SPEED_OF_LIGHT;
+  setVelRelativityScaleFactor(SHIP_RELATIVISTIC_VELOCITY_ADDITION ? Math.cosh(velRapidity) : 1);
+  setVelMagAdj(velMag / SPEED_OF_LIGHT);
+  setAccMag(Math.hypot(ACCEL_X, ACCEL_Y));
+  setAccAng(Math.atan2(ACCEL_Y, ACCEL_X));
+  setAccMagAdj(accMag / SPEED_OF_LIGHT);
 }
 
 function resetRelativisticVars() {
