@@ -6,9 +6,11 @@ import { movementLoopRunning } from './plugin_mouse_motion.mjs';
 import {
   PROPER_TIME,
   SCALE,
+  setTimeAdvancing,
   SUBPIXEL_SCALE,
   TIME,
   TIME_ADVANCING,
+  TIME_RATE,
   VEL_X,
   VEL_Y,
   X,

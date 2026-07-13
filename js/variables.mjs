@@ -56,12 +56,12 @@ let MOUSEDRAG_RELATIVE_TO_FRAME = true;
 export const BACKGROUND_PULSE = true;
 export const SPEED_OF_LIGHT = 1;
 
-export const ACCEL = 1;
+const ACCEL = 1;
 export const TIME_RATE = 1;
 
 export let TIME_ADVANCING = false;
 
-function setTimeAdvancing(newTimeAdvancing) {
+export function setTimeAdvancing(newTimeAdvancing) {
   TIME_ADVANCING = newTimeAdvancing;
 }
 
