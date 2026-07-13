@@ -90,7 +90,6 @@ function initGLBuffers() {
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   
   let positions = new Float32Array([
-    // (x, y), make sure x coord is equal to plus or minus aspect (declared below in glResize), for screen to be fully filled
     1.0, 1.0,
     -1.0, 1.0,
     1.0, -1.0,
