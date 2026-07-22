@@ -12,6 +12,7 @@ export class MouseMover {
   
   // multiplicative factor to multiply current scale by to get target scale
   #targetScaleDelta;
+  #movementLoopRunning = false;
   
   constructor({
     mouseMotionElem,
@@ -91,6 +92,96 @@ export class MouseMover {
   setTargetScaleDelta(targetScaleDelta) {
     this.#targetScaleDelta = targetScaleDelta;
   }
+  
+  async #movementLoop() {
+    if (movementLoopRunning) return;
+    
+    movementLoopRunning = true;
+    
+    let timestamp, pTimestamp;
+    
+    while (true) {
+      let processMovement, processZoom;
+      processMovement = Math.abs(screenVelX) >= MouseMover.#INERTIA_MOVE_THRESHOLD ||
+        Math.abs(screenVelY) >= MouseMover.#INERTIA_MOVE_THRESHOLD;
+      processZoom = Math.abs(Math.log(targetScale / getScale())) >= MouseMover.#INERTIA_ZOOM_THRESHOLD;
+      
+      let lastFrameTime;
+      if (pTimestamp) {
+        lastFrameTime = (timestamp - pTimestamp) / 1000;
+      }
+      
+      // movement processing
+      
+      if (processMovement) {
+        if (!mouseDown) {
+          shiftShipPos(screenVelX, screenVelY);
+          
+          if (pTimestamp) {
+            let newVelMag;
+            let timeSinceUnclicked = (timestamp - timeUnclicked) / 1000;
+            if (timeSinceUnclicked > MouseMover.#INERTIA_FASTSLOWDOWN_TIME_THRESHOLD && screenVelMag > MouseMover.#INERTIA_FASTSLOWDOWN_VEL_THRESHOLD) {
+              // bigger for fast speeds
+              newVelMag = Math.max((screenVelMag - MouseMover.#INERTIA_SLOWDOWN * lastFrameTime) * MouseMover.#INERTIA_SLOWDOWN_FACTOR ** lastFrameTime, 0);
+            } else {
+              // linear for slow speeds
+              newVelMag = Math.max(screenVelMag - MouseMover.#INERTIA_SLOWDOWN * lastFrameTime, 0);
+            }
+            
+            let slowdownFactor = screenVelMag != 0 ? newVelMag / screenVelMag : 0;
+            
+            screenVelX *= slowdownFactor;
+            screenVelY *= slowdownFactor;
+            
+            screenVelMag = newVelMag;
+          }
+        }
+      }
+      
+      // zoom processing
+      
+      if (processZoom && pTimestamp) {
+        let scaleFactor = Math.exp(Math.log(targetScale / getScale()) * Math.min(MouseMover.#INERTIA_ZOOM_FACTOR * lastFrameTime, 1));
+        
+        setScale(getScale() * scaleFactor);
+      }
+      
+      // call next iteration of loop
+      
+      if (this.#endMovementLoopThenDispose) {
+        this.#endMovementLoopThenDispose = false;
+        this.#movementLoopRunning = false;
+        this.#disposed = true;
+        break;
+      }
+      
+      if (
+        Math.abs(screenVelX) < MouseMover.#INERTIA_MOVE_THRESHOLD &&
+        Math.abs(screenVelY) < MouseMover.#INERTIA_MOVE_THRESHOLD &&
+        Math.abs(Math.log(targetScale / getScale())) < MouseMover.#INERTIA_ZOOM_THRESHOLD
+      ) {
+        movementLoopRunning = false;
+        pTimestamp = null;
+        break;
+      } else {
+        pTimestamp = timestamp;
+      }
+      
+      timestamp = await new Promise(r => requestAnimationFrame(r));
+    }
+  }
+  
+  [Symbol.asyncDispose]() {
+    if (this.#movementLoopRunning) {
+      this.#endMovementLoopThenDispose = true;
+      
+      await new Promise(r => {
+        this.#movementLoopEndCallbacks.add(r);
+      });
+    } else {
+      this.#disposed = true;
+    }
+  }
 }
 
 //let shiftShipPos;
@@ -108,83 +199,12 @@ export class MouseMover {
 //
 //export let movementLoopRunning = false;
 
-async function movementLoop() {
-  if (movementLoopRunning) return;
-  
-  movementLoopRunning = true;
-  
-  let timestamp, pTimestamp;
-  
-  while (true) {
-    let processMovement, processZoom;
-    processMovement = Math.abs(screenVelX) >= MouseMover.#INERTIA_MOVE_THRESHOLD ||
-      Math.abs(screenVelY) >= MouseMover.#INERTIA_MOVE_THRESHOLD;
-    processZoom = Math.abs(Math.log(targetScale / getScale())) >= MouseMover.#INERTIA_ZOOM_THRESHOLD;
-    
-    let lastFrameTime;
-    if (pTimestamp) {
-      lastFrameTime = (timestamp - pTimestamp) / 1000;
-    }
-    
-    // movement processing
-    
-    if (processMovement) {
-      if (!mouseDown) {
-        shiftShipPos(screenVelX, screenVelY);
-        
-        if (pTimestamp) {
-          let newVelMag;
-          let timeSinceUnclicked = (timestamp - timeUnclicked) / 1000;
-          if (timeSinceUnclicked > MouseMover.#INERTIA_FASTSLOWDOWN_TIME_THRESHOLD && screenVelMag > MouseMover.#INERTIA_FASTSLOWDOWN_VEL_THRESHOLD) {
-            // bigger for fast speeds
-            newVelMag = Math.max((screenVelMag - MouseMover.#INERTIA_SLOWDOWN * lastFrameTime) * MouseMover.#INERTIA_SLOWDOWN_FACTOR ** lastFrameTime, 0);
-          } else {
-            // linear for slow speeds
-            newVelMag = Math.max(screenVelMag - MouseMover.#INERTIA_SLOWDOWN * lastFrameTime, 0);
-          }
-          
-          let slowdownFactor = screenVelMag != 0 ? newVelMag / screenVelMag : 0;
-          
-          screenVelX *= slowdownFactor;
-          screenVelY *= slowdownFactor;
-          
-          screenVelMag = newVelMag;
-        }
-      }
-    }
-    
-    // zoom processing
-    
-    if (processZoom && pTimestamp) {
-      let scaleFactor = Math.exp(Math.log(targetScale / getScale()) * Math.min(MouseMover.#INERTIA_ZOOM_FACTOR * lastFrameTime, 1));
-      
-      setScale(getScale() * scaleFactor);
-    }
-    
-    // call next iteration of loop
-    
-    if (
-      Math.abs(screenVelX) < MouseMover.#INERTIA_MOVE_THRESHOLD &&
-      Math.abs(screenVelY) < MouseMover.#INERTIA_MOVE_THRESHOLD &&
-      Math.abs(Math.log(targetScale / getScale())) < MouseMover.#INERTIA_ZOOM_THRESHOLD
-    ) {
-      movementLoopRunning = false;
-      pTimestamp = null;
-      break;
-    } else {
-      pTimestamp = timestamp;
-    }
-    
-    timestamp = await new Promise(r => window.requestAnimationFrame(r));
-  }
-}
-
-export function init(newGetScale, newSetScale, newShiftShipPos, newGetRealCanvasWidth, newGetRealCanvasHeight) {
-  getScale = newGetScale;
-  setScale = newSetScale;
-  shiftShipPos = newShiftShipPos;
-  getRealCanvasWidth = newGetRealCanvasWidth;
-  getRealCanvasHeight = newGetRealCanvasHeight;
-
-  targetScale = getScale();
-}
+//export function init(newGetScale, newSetScale, newShiftShipPos, newGetRealCanvasWidth, newGetRealCanvasHeight) {
+//  getScale = newGetScale;
+//  setScale = newSetScale;
+//  shiftShipPos = newShiftShipPos;
+//  getRealCanvasWidth = newGetRealCanvasWidth;
+//  getRealCanvasHeight = newGetRealCanvasHeight;
+//
+//  targetScale = getScale();
+//}
