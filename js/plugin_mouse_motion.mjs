@@ -13,6 +13,9 @@ export class MouseMover {
   // multiplicative factor to multiply current scale by to get target scale
   #targetScaleDelta;
   #movementLoopRunning = false;
+  #endMovementLoopThenDispose = false;
+  #disposed = false;
+  #movementLoopEndCallbacks = new Set();
   
   constructor({
     mouseMotionElem,
@@ -160,7 +163,7 @@ export class MouseMover {
         Math.abs(screenVelY) < MouseMover.#INERTIA_MOVE_THRESHOLD &&
         Math.abs(Math.log(targetScale / getScale())) < MouseMover.#INERTIA_ZOOM_THRESHOLD
       ) {
-        movementLoopRunning = false;
+        this.#movementLoopRunning = false;
         pTimestamp = null;
         break;
       } else {
@@ -169,6 +172,14 @@ export class MouseMover {
       
       timestamp = await new Promise(r => requestAnimationFrame(r));
     }
+    
+    for (const r of this.#movementLoopEndCallbacks) {
+      try {
+        r();
+      } catch {}
+    }
+    
+    this.#movementLoopEndCallbacks.clear();
   }
   
   [Symbol.asyncDispose]() {
