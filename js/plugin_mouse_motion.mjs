@@ -11,12 +11,19 @@ export class MouseMover {
   static #PREV_MOUSE_BUFFER_TIMESPAN = 0.1 * 1000;
   
   static #getElementDimensions(element) {
-    const style = getComputedStyle(element);
-    
-    return [
-      Number(style.width.slice(0, -2)),
-      Number(style.height.slice(0, -2)),
-    ];
+    if (element == null) {
+      return [
+        innerWidth,
+        innerHeight,
+      ];
+    } else {
+      const style = getComputedStyle(element);
+      
+      return [
+        Number(style.width.slice(0, -2)),
+        Number(style.height.slice(0, -2)),
+      ];
+    }
   }
   
   #movementLoopRunning = false;
@@ -140,8 +147,13 @@ export class MouseMover {
   }) {
     this.#mouseMotionElem = mouseMotionElem;
     
-    mouseMotionElem.addEventListener('mousedown', e => {
-      const x = e.offsetX, y = e.offsetY;
+    this.#moveViewCallback = moveViewCallback;
+    this.#scaleViewCallback = scaleViewCallback;
+    
+    const workingMouseMotionElem = mouseMotionElem ?? window;
+    
+    workingMouseMotionElem.addEventListener('mousedown', e => {
+      const x = e.clientX, y = e.clientY;
       
       this.#mouseDown = true;
       
@@ -149,7 +161,7 @@ export class MouseMover {
       this.#pMouseY = y;
     });
     
-    mouseMotionElem.addEventListener('mouseup', e => {
+    workingMouseMotionElem.addEventListener('mouseup', e => {
       this.#timeUnclicked = performance.now();
       
       const minValidTime = this.#timeUnclicked - MouseMover.#PREV_MOUSE_BUFFER_TIMESPAN;
@@ -175,8 +187,8 @@ export class MouseMover {
       this.#mouseDown = false;
     });
     
-    mouseMotionElem.addEventListener('mousemove', e => {
-      const x = e.offsetX, y = e.offsetY;
+    workingMouseMotionElem.addEventListener('mousemove', e => {
+      const x = e.clientX, y = e.clientY;
       
       if (this.#mouseDown) {
         this.#screenVelX = x - this.#pMouseX;
@@ -200,7 +212,7 @@ export class MouseMover {
       }
     });
     
-    mouseMotionElem.addEventListener('wheel', e => {
+    workingMouseMotionElem.addEventListener('wheel', e => {
       const wheelDelta = e.wheelDelta;
       
       [this.#pMouseX, this.#pMouseY] = MouseMover.#getElementDimensions(this.#mouseMotionElem);
@@ -216,9 +228,6 @@ export class MouseMover {
       
       this.#movementLoop();
     });
-    
-    this.#moveViewCallback = moveViewCallback;
-    this.#scaleViewCallback = scaleViewCallback;
   }
   
   setTargetScaleDelta(targetScaleDelta) {

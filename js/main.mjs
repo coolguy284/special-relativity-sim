@@ -80,7 +80,7 @@ let ctrls = { up: false, down: false, left: false, right: false, brake: false };
 let velRapidity = 0;
 let ACCEL_X, ACCEL_Y;
 let mouseMover = new MouseMover({
-  mouseMotionElem: canvas,
+  mouseMotionElem: null,
   moveViewCallback: shiftShipPos,
   scaleViewCallback: scaleDelta => setScale(SCALE * scaleDelta),
 });
