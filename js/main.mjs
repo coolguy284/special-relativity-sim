@@ -50,6 +50,7 @@ import {
   glResize,
   initGLBuffers,
   initShaderProgram,
+  initShaderUniforms,
 } from './webgl_boilerplate.mjs';
 
 let gl; // variable for canvas webgl context
@@ -107,6 +108,8 @@ async function glInit() {
   glBuffers = initGLBuffers(gl);
   
   glResize(gl, shaderProgram, shaderProgramInfo, glBuffers);
+  
+  initShaderUniforms(gl, shaderProgramInfo);
 }
 
 function render() {

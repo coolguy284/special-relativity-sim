@@ -1,5 +1,4 @@
 low prio:
-drawglscene split var setting into 2 funcs, an initial setting and a every frame setting
 replace some uniform ints with bools
 
 add stage wraparound at +- 500

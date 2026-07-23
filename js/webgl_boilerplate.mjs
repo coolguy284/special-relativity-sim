@@ -127,6 +127,10 @@ export async function initShaderProgram(gl) {
   return shaderProgram;
 }
 
+export function initShaderUniforms(gl, shaderProgramInfo) {
+  setConstantUniforms(gl, shaderProgramInfo);
+}
+
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
 export function getShaderProgramInfo(gl, shaderProgram) {
   return {
@@ -198,11 +202,10 @@ export function drawGLScene(gl, shaderProgramInfo) {
   
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   
-  setConstantUniforms(gl, shaderProgramInfo);
   setDynamicUniforms(gl, shaderProgramInfo);
   
-  let offset = 0;
-  let vertexCount = 4;
+  const offset = 0;
+  const vertexCount = 4;
   gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
 }
 
