@@ -12,8 +12,11 @@ export class MouseMover {
   
   static #getElementDimensions(element) {
     const style = getComputedStyle(element);
-    console.log(style.width, style.height);
-    throw 'te';
+    
+    return [
+      Number(style.width.slice(0, -2)),
+      Number(style.height.slice(0, -2)),
+    ];
   }
   
   #movementLoopRunning = false;
@@ -220,6 +223,10 @@ export class MouseMover {
   
   setTargetScaleDelta(targetScaleDelta) {
     this.#targetScaleDelta = targetScaleDelta;
+  }
+  
+  movementLoopRunning() {
+    return this.#movementLoopRunning;
   }
   
   async [Symbol.asyncDispose]() {

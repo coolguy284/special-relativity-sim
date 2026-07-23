@@ -176,7 +176,7 @@ async function renderLoop() {
       pastTime = Date.now();
     }
     
-    if (TIME_ADVANCING || movementLoopRunning) {
+    if (TIME_ADVANCING || mouseMover.movementLoopRunning()) {
       if (TIME_ADVANCING) {
         if (ctrls.brake) {
           let velMag = Math.hypot(VEL_X, VEL_Y);
