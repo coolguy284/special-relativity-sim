@@ -73,6 +73,38 @@ function setPositionAttribute(gl, shaderProgramInfo, buffers) {
   gl.enableVertexAttribArray(shaderProgramInfo.attribLocations.vertexPosition);
 }
 
+function setConstantUniforms(gl, shaderProgramInfo) {
+  gl.uniform1i(shaderProgramInfo.uniformLocations.LIGHT_TRAVEL_TIME_DELAY, Number(LIGHT_TRAVEL_TIME_DELAY));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY, Number(LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_TIME_SHIFTING, Number(UNIVERSE_TIME_SHIFTING));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_LENGTH_CONTRACTION, Number(UNIVERSE_LENGTH_CONTRACTION));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.ITEM_LENGTH_CONTRACTION, Number(ITEM_LENGTH_CONTRACTION));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.RINDLER_METRIC_WHEN_ACCELERATING, Number(RINDLER_METRIC_WHEN_ACCELERATING));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW, Number(RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.HIDE_RINDLER_METRIC_PAST_SINGULARITY, Number(HIDE_RINDLER_METRIC_PAST_SINGULARITY));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.TIMELIKE_VIEW_NORMALIZED_X_COORDINATE, Number(TIMELIKE_VIEW_NORMALIZED_X_COORDINATE));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.BLACK_BEFORE_UNIVERSE_START, Number(BLACK_BEFORE_UNIVERSE_START));
+  gl.uniform1i(shaderProgramInfo.uniformLocations.BACKGROUND_PULSE, Number(BACKGROUND_PULSE));
+  gl.uniform1f(shaderProgramInfo.uniformLocations.SPEED_OF_LIGHT, SPEED_OF_LIGHT);
+}
+
+function setDynamicUniforms(gl, shaderProgramInfo) {
+  gl.uniform1i(shaderProgramInfo.uniformLocations.TIMELIKE_VIEW, Number(TIMELIKE_VIEW));
+  
+  gl.uniform2fv(shaderProgramInfo.uniformLocations.pos, [X, Y]);
+  gl.uniform2fv(shaderProgramInfo.uniformLocations.vel, [VEL_X, VEL_Y]);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.scale, SCALE);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.globalTime, TIME);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.velMag, velMag);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.velAng, velAng);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.velLorenzFactor, velLorenzFactor);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.velRelativityScaleFactor, velRelativityScaleFactor);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.velMagAdj, velMagAdj);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.accMag, accMag);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.accAng, accAng);
+  gl.uniform1f(shaderProgramInfo.uniformLocations.accMagAdj, accMagAdj);
+}
+
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
 export async function initShaderProgram(gl) {
   const vertexCode = await (await fetch('sr_vertex.glsl')).text();
@@ -166,32 +198,8 @@ export function drawGLScene(gl, shaderProgramInfo) {
   
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   
-  gl.uniform1i(shaderProgramInfo.uniformLocations.LIGHT_TRAVEL_TIME_DELAY, Number(LIGHT_TRAVEL_TIME_DELAY));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY, Number(LIGHT_TRAVEL_TIME_DELAY_INCLUDES_SHIP_VELOCITY));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_TIME_SHIFTING, Number(UNIVERSE_TIME_SHIFTING));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.UNIVERSE_LENGTH_CONTRACTION, Number(UNIVERSE_LENGTH_CONTRACTION));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.ITEM_LENGTH_CONTRACTION, Number(ITEM_LENGTH_CONTRACTION));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.RINDLER_METRIC_WHEN_ACCELERATING, Number(RINDLER_METRIC_WHEN_ACCELERATING));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW, Number(RINDLER_METRIC_WHEN_ACCELERATING_TIMELIKE_VIEW));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.HIDE_RINDLER_METRIC_PAST_SINGULARITY, Number(HIDE_RINDLER_METRIC_PAST_SINGULARITY));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.TIMELIKE_VIEW, Number(TIMELIKE_VIEW));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.TIMELIKE_VIEW_NORMALIZED_X_COORDINATE, Number(TIMELIKE_VIEW_NORMALIZED_X_COORDINATE));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.BLACK_BEFORE_UNIVERSE_START, Number(BLACK_BEFORE_UNIVERSE_START));
-  gl.uniform1i(shaderProgramInfo.uniformLocations.BACKGROUND_PULSE, Number(BACKGROUND_PULSE));
-  gl.uniform1f(shaderProgramInfo.uniformLocations.SPEED_OF_LIGHT, SPEED_OF_LIGHT);
-  
-  gl.uniform2fv(shaderProgramInfo.uniformLocations.pos, [X, Y]);
-  gl.uniform2fv(shaderProgramInfo.uniformLocations.vel, [VEL_X, VEL_Y]);
-  gl.uniform1f(shaderProgramInfo.uniformLocations.scale, SCALE);
-  gl.uniform1f(shaderProgramInfo.uniformLocations.globalTime, TIME);
-  gl.uniform1f(shaderProgramInfo.uniformLocations.velMag, velMag);
-  gl.uniform1f(shaderProgramInfo.uniformLocations.velAng, velAng);
-  gl.uniform1f(shaderProgramInfo.uniformLocations.velLorenzFactor, velLorenzFactor);
-  gl.uniform1f(shaderProgramInfo.uniformLocations.velRelativityScaleFactor, velRelativityScaleFactor);
-  gl.uniform1f(shaderProgramInfo.uniformLocations.velMagAdj, velMagAdj);
-  gl.uniform1f(shaderProgramInfo.uniformLocations.accMag, accMag);
-  gl.uniform1f(shaderProgramInfo.uniformLocations.accAng, accAng);
-  gl.uniform1f(shaderProgramInfo.uniformLocations.accMagAdj, accMagAdj);
+  setConstantUniforms(gl, shaderProgramInfo);
+  setDynamicUniforms(gl, shaderProgramInfo);
   
   let offset = 0;
   let vertexCount = 4;
