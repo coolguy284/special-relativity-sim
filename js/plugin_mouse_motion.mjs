@@ -103,6 +103,7 @@ export class MouseMover {
         const scaleFactor = Math.exp(Math.log(this.#targetScaleDelta) * Math.min(MouseMover.#INERTIA_ZOOM_FACTOR * lastFrameTime, 1));
         
         this.#scaleViewCallback(scaleFactor);
+        this.#targetScaleDelta /= scaleFactor;
       }
       
       // call next iteration of loop
