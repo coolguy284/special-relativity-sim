@@ -10,6 +10,12 @@ export class MouseMover {
   static #PREV_MOUSE_BUFFER_LENGTH = 3;
   static #PREV_MOUSE_BUFFER_TIMESPAN = 0.1 * 1000;
   
+  static #getElementDimensions(element) {
+    const style = getComputedStyle(element);
+    console.log(style.width, style.height);
+    throw 'te';
+  }
+  
   #movementLoopRunning = false;
   #endMovementLoopThenDispose = false;
   #disposed = false;
@@ -216,7 +222,7 @@ export class MouseMover {
     this.#targetScaleDelta = targetScaleDelta;
   }
   
-  [Symbol.asyncDispose]() {
+  async [Symbol.asyncDispose]() {
     if (this.#movementLoopRunning) {
       this.#endMovementLoopThenDispose = true;
       
@@ -228,17 +234,3 @@ export class MouseMover {
     }
   }
 }
-
-//let getRealCanvasWidth;
-//let getRealCanvasHeight;
-//
-//let previousMouseDrags = [];
-
-//export function init(newGetScale, newSetScale, newShiftShipPos, newGetRealCanvasWidth, newGetRealCanvasHeight) {
-//  getScale = newGetScale;
-//  setScale = newSetScale;
-//  getRealCanvasWidth = newGetRealCanvasWidth;
-//  getRealCanvasHeight = newGetRealCanvasHeight;
-//
-//  targetScale = getScale();
-//}

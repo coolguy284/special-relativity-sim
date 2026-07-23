@@ -11,11 +11,7 @@ import {
   velLorenzFactor,
   velMag,
 } from './globals.mjs';
-import {
-  init as mouseMotionInit,
-  movementLoopRunning,
-  setTargetScale,
-} from './plugin_mouse_motion.mjs';
+import { MouseMover } from './plugin_mouse_motion.mjs';
 import {
   getLorenzFactor,
   getWorldPlaceFromShipFrameCoords,
@@ -83,6 +79,11 @@ Object.entries(ctrlMap).forEach(x => {
 let ctrls = { up: false, down: false, left: false, right: false, brake: false };
 let velRapidity = 0;
 let ACCEL_X, ACCEL_Y;
+let mouseMover = new MouseMover({
+  mouseMotionElem: canvas,
+  moveViewCallback: shiftShipPos,
+  scaleViewCallback: scaleDelta => setScale(SCALE * scaleDelta),
+});
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
@@ -230,14 +231,6 @@ async function renderLoop() {
     await new Promise(r => requestAnimationFrame(r));
   }
 }
-
-mouseMotionInit(
-  () => SCALE,
-  newScale => setScale(newScale),
-  shiftShipPos,
-  () => realCanvasWidth,
-  () => realCanvasHeight,
-);
 
 window.addEventListener('load', async () => {
   handleResize();
