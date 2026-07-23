@@ -11,11 +11,7 @@ import {
   velLorenzFactor,
   velMag,
 } from './globals.mjs';
-import {
-  init as mouseMotionInit,
-  movementLoopRunning,
-  setTargetScale,
-} from './plugin_mouse_motion.mjs';
+import { MouseMover } from './plugin_mouse_motion.mjs';
 import {
   getLorenzFactor,
   getWorldPlaceFromShipFrameCoords,
@@ -83,6 +79,11 @@ Object.entries(ctrlMap).forEach(x => {
 let ctrls = { up: false, down: false, left: false, right: false, brake: false };
 let velRapidity = 0;
 let ACCEL_X, ACCEL_Y;
+let mouseMover = new MouseMover({
+  mouseMotionElem: null,
+  moveViewCallback: shiftShipPos,
+  scaleViewCallback: scaleDelta => setScale(SCALE * scaleDelta),
+});
 
 function handleResize() {
   let canvasStyle = getComputedStyle(canvas);
@@ -175,7 +176,7 @@ async function renderLoop() {
       pastTime = Date.now();
     }
     
-    if (TIME_ADVANCING || movementLoopRunning) {
+    if (TIME_ADVANCING || mouseMover.movementLoopRunning()) {
       if (TIME_ADVANCING) {
         if (ctrls.brake) {
           let velMag = Math.hypot(VEL_X, VEL_Y);
@@ -231,14 +232,6 @@ async function renderLoop() {
   }
 }
 
-mouseMotionInit(
-  () => SCALE,
-  newScale => setScale(newScale),
-  shiftShipPos,
-  () => realCanvasWidth,
-  () => realCanvasHeight,
-);
-
 window.addEventListener('load', async () => {
   handleResize();
   
@@ -266,7 +259,7 @@ window.addEventListener('keydown', e => {
       setX(0);
       setY(0);
       setScale(10);
-      setTargetScale(10);
+      mouseMover.setTargetScaleDelta(1);
       setVelX(0);
       setVelY(0);
       resetRelativisticVars();
