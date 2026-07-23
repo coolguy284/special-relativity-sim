@@ -259,7 +259,7 @@ window.addEventListener('keydown', e => {
       setX(0);
       setY(0);
       setScale(10);
-      setTargetScale(10);
+      mouseMover.setTargetScaleDelta(1);
       setVelX(0);
       setVelY(0);
       resetRelativisticVars();
